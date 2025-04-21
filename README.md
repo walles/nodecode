@@ -29,6 +29,7 @@ editor, and edit them there.
 - Publish Python type stubs to PyPI
 - Publish the add-on to Blender Extensions
 - Ensure the generated code has type hints where applicable
+- Test that a generated nodecode file passes mypy without any complaints
 - Make sure the extracted-from-Blender Python stubs have no `Any` types
 
 ## Done

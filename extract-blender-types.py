@@ -2,12 +2,13 @@
 #
 # Instructions:
 # 1. Open Blender
-# 2. Open the Scripting workspace
-# 3. Click the "New" button to create a new script
-# 4. Copy and paste this code into the script editor
-# 5. Run the script by clicking the "Run Script" button
-# 6. The generated files will be saved in a folder named "nodecode" next to your .blend file
-# 7. Copy the generated .pyi files to the nodecode subdirectory
+# 2. Save the default scene as Untitled.blend in the same directory as this script
+# 3. Open the Scripting workspace
+# 4. Click the "New" button to create a new script
+# 5. Copy and paste this code into the script editor
+# 6. Run the script by clicking the "Run Script" button
+#
+# `git diff` should now show the changes to the stub files in the `nodecode` folder.
 
 import bpy
 import os
