@@ -1,4 +1,4 @@
-# Generated from Blender 4.4.1 on 2025-04-21 16:41:57
+# Generated from Blender 4.4.1 on 2025-04-21 16:48:01
 from typing import Any, Tuple
 
 class AccumulateField:
@@ -554,6 +554,7 @@ class InstanceTransform:
 
 class InstancesToPoints:
     """Generate points at the origins of instances.
+
 Note: Nested instances are not affected by this node"""
     def __init__(self, Instances: Any = ..., Selection: bool = ..., Position: Tuple[float, float, float] = ..., Radius: float = ...) -> None: ...
     def Points(self) -> Any: """Points"""

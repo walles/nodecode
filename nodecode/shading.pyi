@@ -1,4 +1,4 @@
-# Generated from Blender 4.4.1 on 2025-04-21 16:41:57
+# Generated from Blender 4.4.1 on 2025-04-21 16:48:01
 from typing import Any, Tuple
 
 class AddShader:
@@ -8,6 +8,7 @@ class AddShader:
 
 class AmbientOcclusion:
     """Compute how much the hemisphere above the shading point is occluded, for example to add weathering effects to corners.
+
 Note: For Cycles, this may slow down renders significantly"""
     def __init__(self, samples: int, inside: bool, only_local: bool, Color: Tuple[float, float, float, float] = ..., Distance: float = ..., Normal: Tuple[float, float, float] = ...) -> None: ...
     def Color(self) -> Tuple[float, float, float, float]: """Color"""
@@ -23,12 +24,14 @@ class Attribute:
 
 class Background:
     """Add background light emission.
+
 Note: This node should only be used for the world surface output"""
     def __init__(self, Color: Tuple[float, float, float, float] = ..., Strength: float = ..., Weight: float = ...) -> None: ...
     def Background(self) -> Any: """Background"""
 
 class Bevel:
     """Generates normals with round corners.
+
 Note: only supported in Cycles, and may slow down renders"""
     def __init__(self, samples: int, Radius: float = ..., Normal: Tuple[float, float, float] = ...) -> None: ...
     def Normal(self) -> Tuple[float, float, float]: """Normal"""
@@ -90,6 +93,7 @@ class BsdfRefraction:
 
 class BsdfSheen:
     """Reflection for materials such as cloth.
+
 Typically mixed with other shaders (such as a Diffuse Shader) and is not particularly useful on its own"""
     def __init__(self, distribution: Any, Color: Tuple[float, float, float, float] = ..., Roughness: float = ..., Normal: Tuple[float, float, float] = ..., Weight: float = ...) -> None: ...
     def BSDF(self) -> Any: """BSDF"""
@@ -168,6 +172,7 @@ class FloatCurve:
 
 class Fresnel:
     """Produce a blending factor depending on the angle between the surface normal and the view direction using Fresnel equations.
+
 Typically used for mixing reflections at grazing angles"""
     def __init__(self, IOR: float = ..., Normal: Tuple[float, float, float] = ...) -> None: ...
     def Fac(self) -> float: """Fac"""
@@ -193,6 +198,7 @@ class HairInfo:
 
 class Holdout:
     """Create a "hole" in the image with zero alpha transparency, which is useful for compositing.
+
 Note: the holdout shader can only create alpha when transparency is enabled in the film settings"""
     def __init__(self, Weight: float = ...) -> None: ...
     def Holdout(self) -> Any: """Holdout"""
@@ -209,6 +215,7 @@ class Invert:
 
 class LayerWeight:
     """Produce a blending factor depending on the angle between the surface normal and the view direction.
+
 Typically used for layering shaders with the Mix Shader node"""
     def __init__(self, Blend: float = ..., Normal: Tuple[float, float, float] = ...) -> None: ...
     def Fresnel(self) -> float: """Fresnel"""
@@ -223,6 +230,7 @@ class LightFalloff:
 
 class LightPath:
     """Retrieve the type of incoming ray for which the shader is being executed.
+
 Typically used for non-physically-based tricks"""
     def __init__(self, ) -> None: ...
     def Is_Camera_Ray(self) -> float: """Is Camera Ray"""
@@ -309,6 +317,7 @@ class ObjectInfo:
 
 class OutputAOV:
     """Arbitrary Output Variables.
+
 Provide custom render passes for arbitrary shader node outputs"""
     def __init__(self, aov_name: str, Color: Tuple[float, float, float, float] = ..., Value: float = ...) -> None: ...
 
@@ -364,6 +373,7 @@ class RGBToBW:
 
 class Script:
     """Generate an OSL shader from a file or text data-block.
+
 Note: OSL shaders are not supported on all GPU backends"""
     def __init__(self, script: Any, filepath: str, mode: Any, use_auto_update: bool, bytecode: str, bytecode_hash: str) -> None: ...
 
@@ -397,6 +407,7 @@ class SeparateXYZ:
 
 class ShaderToRGB:
     """Convert rendering effect (such as light and shadow) to color. Typically used for non-photorealistic rendering, to apply additional effects on the output of BSDFs.
+
 Note: only supported in EEVEE"""
     def __init__(self, Shader: Any = ...) -> None: ...
     def Color(self) -> Tuple[float, float, float, float]: """Color"""
@@ -409,6 +420,7 @@ class Squeeze:
 
 class SubsurfaceScattering:
     """Subsurface multiple scattering shader to simulate light entering the surface and bouncing internally.
+
 Typically used for materials such as skin, wax, marble or milk"""
     def __init__(self, falloff: Any, Color: Tuple[float, float, float, float] = ..., Scale: float = ..., Radius: Tuple[float, float, float] = ..., IOR: float = ..., Roughness: float = ..., Anisotropy: float = ..., Normal: Tuple[float, float, float] = ..., Weight: float = ...) -> None: ...
     def BSSRDF(self) -> Any: """BSSRDF"""
@@ -432,6 +444,7 @@ class TexChecker:
 
 class TexCoord:
     """Retrieve multiple types of texture coordinates.
+
 Typically used as inputs for texture nodes"""
     def __init__(self, object: Any, from_instancer: bool) -> None: ...
     def Generated(self) -> Tuple[float, float, float]: """Generated"""
@@ -598,6 +611,7 @@ class Wavelength:
 
 class Wireframe:
     """Retrieve the edges of an object as it appears to Cycles.
+
 Note: as meshes are triangulated before being processed by Cycles, topology will always appear triangulated"""
     def __init__(self, use_pixel_size: bool, Size: float = ...) -> None: ...
     def Fac(self) -> float: """Fac"""
