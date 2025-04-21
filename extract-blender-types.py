@@ -7,11 +7,13 @@
 # 4. Copy and paste this code into the script editor
 # 5. Run the script by clicking the "Run Script" button
 # 6. The generated files will be saved in a folder named "nodecode" next to your .blend file
+# 7. Copy the generated .pyi files to the nodecode subdirectory
 
 import bpy
 import os
 import re
 from collections import defaultdict
+from datetime import datetime
 
 # Output folder relative to the blend file
 base_path = bpy.path.abspath("//nodecode")
@@ -72,6 +74,15 @@ def escape_doc(s: str) -> str:
 def write_stub_file(domain, node_prefix, tree_type):
     filename = os.path.join(base_path, f"{domain}.pyi")
     with open(filename, "w", encoding="utf-8") as f:
+        # Get Blender version and current time
+        blender_version = bpy.app.version_string
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Write the comment at the top of the file
+        f.write(f"# Generated from Blender {blender_version} on {current_time}\n")
+        f.write("from typing import Any, Tuple\n\n")
+
+
         f.write("from typing import Any, Tuple\n\n")
 
         if tree_type == "ShaderNodeTree":

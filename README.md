@@ -19,13 +19,18 @@ The text format is a subset of Python, so you can open NodeCode files in a text
 editor, and edit them there.
 
 # TODO
-- Extract Python type stubs from Blender
-- Make sure the Python stubs come with type hints
-- Publish Python type stubs to PyPI
 - Make a Blender add-on that can show NodeCode for any node setup
   - Shaders
   - Geometry
   - Compositing
-- Ensure the generated code has type hints where applicable
 - Enable the add-on to create a new node setup (or overwrite an existing one?)
   from a NodeCode file
+- Document a versioning scheme based on the Blender version
+- Publish Python type stubs to PyPI
+- Publish the add-on to Blender Extensions
+- Ensure the generated code has type hints where applicable
+- Make sure the extracted-from-Blender Python stubs have no `Any` types
+
+## Done
+- Extract Python type stubs from Blender
+- Make sure the Python stubs come with type hints
