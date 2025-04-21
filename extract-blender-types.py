@@ -11,6 +11,7 @@
 import bpy
 import os
 import re
+from collections import defaultdict
 
 # Output folder: relative to the .blend file
 base_path = bpy.path.abspath("//nodecode")
@@ -31,13 +32,8 @@ def python_type(bl_type):
         'COLLECTION': 'Any',
     }.get(bl_type, 'Any')
 
-def quote_name(name):
-    return name if name.isidentifier() else f'"{name}"'
-
-def sanitize_method_name(name):
-    # Ensure the name is a valid Python identifier
-    name = re.sub(r'\W|^(?=\d)', '_', name)
-    return name
+def sanitize_name(name):
+    return re.sub(r'\W|^(?=\d)', '_', name)
 
 def write_stub_file(domain, node_prefix, tree_type):
     filename = os.path.join(base_path, f"{domain}.py")
@@ -73,11 +69,24 @@ def write_stub_file(domain, node_prefix, tree_type):
             if node is None:
                 continue
 
+            # Count input socket names
+            input_counts = defaultdict(int)
+            for s in node.inputs:
+                input_counts[s.name] += 1
+
+            # Build input signature
             inputs = []
-            for input_socket in node.inputs:
-                name = input_socket.name
-                hint = python_type(input_socket.type)
-                inputs.append(f"{quote_name(name)}: {hint} = ...")
+            input_name_indices = defaultdict(int)
+            for s in node.inputs:
+                count = input_counts[s.name]
+                base = sanitize_name(s.name)
+                if count == 1:
+                    name = base
+                else:
+                    input_name_indices[base] += 1
+                    name = f"{base}{input_name_indices[base]}"
+                hint = python_type(s.type)
+                inputs.append(f"{name}: {hint} = ...")
 
             short_name = cls_name[len(node_prefix):]
             f.write(f"class {short_name}:\n")
@@ -86,10 +95,22 @@ def write_stub_file(domain, node_prefix, tree_type):
             else:
                 f.write("    def __init__(self) -> None: ...\n")
 
-            for output_socket in node.outputs:
-                method_name = sanitize_method_name(output_socket.name)
-                return_type = python_type(output_socket.type)
-                f.write(f"    def {method_name}(self) -> {return_type}: ...\n")
+            # Handle outputs
+            output_counts = defaultdict(int)
+            for s in node.outputs:
+                output_counts[s.name] += 1
+
+            output_indices = defaultdict(int)
+            for s in node.outputs:
+                count = output_counts[s.name]
+                base = sanitize_name(s.name)
+                if count == 1:
+                    name = base
+                else:
+                    output_indices[base] += 1
+                    name = f"{base}{output_indices[base]}"
+                return_type = python_type(s.type)
+                f.write(f"    def {name}(self) -> {return_type}: ...\n")
 
             f.write("\n")
 
