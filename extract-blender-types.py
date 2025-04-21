@@ -17,6 +17,37 @@ from collections import defaultdict
 base_path = bpy.path.abspath("//nodecode")
 os.makedirs(base_path, exist_ok=True)
 
+# Common to all node types, storing these is not relevant for getting the right
+# output.
+COMMON_NODE_PROPERTIES = {
+    'bl_description',
+    'bl_height_default',
+    'bl_height_max',
+    'bl_height_min',
+    'bl_icon',
+    'bl_idname',
+    'bl_label',
+    'bl_width_default',
+    'bl_width_max',
+    'bl_width_min',
+    'color',
+    'height',
+    'hide',
+    'label',
+    'location_absolute',
+    'location',
+    'mute',
+    'name',
+    'parent',
+    'select',
+    'show_options',
+    'show_preview',
+    'show_texture',
+    'use_custom_color',
+    'warning_propagation',
+    'width',
+}
+
 def python_type(bl_type):
     return {
         'VALUE': 'float',
@@ -77,15 +108,19 @@ def write_stub_file(domain, node_prefix, tree_type):
             f.write(f"class {short_name}:\n")
             f.write(f'    """{class_doc}"""\n')
 
-            # --- ENUM PROPERTIES ---
-            enum_params = []
+            # --- NODE PROPERTIES WITH UI ELEMENTS ---
+            ui_properties = []
             for prop_id, prop in node.bl_rna.properties.items():
-                if prop_id in {'name', 'label', 'location', 'width', 'height', 'bl_icon', 'warning_propagation'}:
-                    continue
+                # Skip properties that are hidden or read-only
                 if prop.is_hidden or prop.is_readonly:
                     continue
-                if prop.type == 'ENUM':
-                    enum_params.append(f"{sanitize_name(prop_id)}: str")
+
+                # Skip properties that are common to all nodes
+                if prop_id in COMMON_NODE_PROPERTIES:
+                    continue
+
+                prop_type = python_type(prop.type)
+                ui_properties.append(f"{sanitize_name(prop_id)}: {prop_type}")
 
             # --- INPUTS ---
             input_counts = defaultdict(int)
@@ -105,7 +140,8 @@ def write_stub_file(domain, node_prefix, tree_type):
                 hint = python_type(s.type)
                 input_args.append(f"{name}: {hint} = ...")
 
-            all_args = enum_params + input_args
+            # Combine UI properties and inputs
+            all_args = ui_properties + input_args
             f.write(f"    def __init__(self, {', '.join(all_args)}) -> None: ...\n")
 
             # --- OUTPUTS ---
