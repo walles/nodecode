@@ -82,9 +82,6 @@ def write_stub_file(domain, node_prefix, tree_type):
         f.write(f"# Generated from Blender {blender_version} on {current_time}\n")
         f.write("from typing import Any, Tuple\n\n")
 
-
-        f.write("from typing import Any, Tuple\n\n")
-
         if tree_type == "ShaderNodeTree":
             mat = bpy.data.materials.new("TempMat")
             mat.use_nodes = True
