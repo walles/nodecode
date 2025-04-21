@@ -66,8 +66,23 @@ def python_type(bl_type):
         'COLLECTION': 'Any',
     }.get(bl_type, 'Any')
 
+def pprint(obj) -> str:
+    """Pretty print a Blender object."""
+    if hasattr(obj, 'bl_rna'):
+        return f"{obj.bl_rna.identifier}({', '.join(f'{k}={v}' for k, v in obj.items())})"
+    return str(obj)
+
 def sanitize_name(name):
-    return re.sub(r'\W|^(?=\d)', '_', name)
+    sanitized = re.sub(r'\W|^(?=\d)', '_', name)
+    if sanitized == "False":
+        sanitized = "on_False"
+    elif sanitized == "True":
+        sanitized = "on_True"
+
+    if not sanitized:
+        raise ValueError(f"Cannot sanitize name: {name}")
+
+    return sanitized
 
 def escape_doc(s: str) -> str:
     return s.replace('"""', '\"\"\"').strip()
@@ -139,6 +154,10 @@ def write_stub_file(domain, node_prefix, tree_type):
             input_name_indices = defaultdict(int)
             input_args = []
             for s in node.inputs:
+                if not s.name:
+                    print(f"Warning: Input {pprint(s)} has no name, skipping...")
+                    continue
+
                 count = input_counts[s.name]
                 base = sanitize_name(s.name)
                 if count == 1:
@@ -160,6 +179,10 @@ def write_stub_file(domain, node_prefix, tree_type):
 
             output_indices = defaultdict(int)
             for s in node.outputs:
+                if not s.name:
+                    print(f"Warning: Output {pprint(s)} has no name, skipping...")
+                    continue
+
                 count = output_counts[s.name]
                 base = sanitize_name(s.name)
                 if count == 1:

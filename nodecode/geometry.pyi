@@ -1,4 +1,4 @@
-# Generated from Blender 4.4.1 on 2025-04-21 16:26:06
+# Generated from Blender 4.4.1 on 2025-04-21 16:41:57
 from typing import Any, Tuple
 
 class AccumulateField:
@@ -33,9 +33,8 @@ class AttributeStatistic:
 
 class Bake:
     """Cache the incoming data so that it can be used without recomputation"""
-    def __init__(self, active_index: int, active_item: Any, Geometry: Any = ..., : Any = ...) -> None: ...
+    def __init__(self, active_index: int, active_item: Any, Geometry: Any = ...) -> None: ...
     def Geometry(self) -> Any: """Geometry"""
-    def (self) -> Any: """"""
 
 class BlurAttribute:
     """Mix attribute values of neighboring elements"""
@@ -51,9 +50,8 @@ class BoundBox:
 
 class CaptureAttribute:
     """Store the result of a field on a geometry and output the data as a node socket. Allows remembering or interpolating data as the geometry changes, such as positions before deformation"""
-    def __init__(self, active_index: int, active_item: Any, domain: Any, Geometry: Any = ..., : Any = ...) -> None: ...
+    def __init__(self, active_index: int, active_item: Any, domain: Any, Geometry: Any = ...) -> None: ...
     def Geometry(self) -> Any: """Geometry"""
-    def (self) -> Any: """"""
 
 class CollectionInfo:
     """Retrieve geometry instances from a collection"""
@@ -282,18 +280,15 @@ class FlipFaces:
 
 class ForeachGeometryElementInput:
     """For Each Geometry Element Input"""
-    def __init__(self, Geometry: Any = ..., Selection: bool = ..., : Any = ...) -> None: ...
+    def __init__(self, Geometry: Any = ..., Selection: bool = ...) -> None: ...
     def Index(self) -> int: """Index"""
     def Element(self) -> Any: """Element"""
-    def (self) -> Any: """"""
 
 class ForeachGeometryElementOutput:
     """For Each Geometry Element Output"""
-    def __init__(self, active_input_index: int, active_generation_index: int, active_main_index: int, domain: Any, inspection_index: int, 1: Any = ..., Geometry: Any = ..., 2: Any = ...) -> None: ...
+    def __init__(self, active_input_index: int, active_generation_index: int, active_main_index: int, domain: Any, inspection_index: int, Geometry: Any = ...) -> None: ...
     def Geometry1(self) -> Any: """Geometry"""
-    def 1(self) -> Any: """"""
     def Geometry2(self) -> Any: """Geometry"""
-    def 2(self) -> Any: """"""
 
 class GeometryToInstance:
     """Convert each input geometry into an instance, which can be much faster than the Join Geometry node when the inputs are large"""
@@ -373,7 +368,7 @@ class IndexOfNearest:
 
 class IndexSwitch:
     """Choose between an arbitrary number of values with an index"""
-    def __init__(self, data_type: Any, Index: int = ..., _0: Any = ..., _1: Any = ..., : Any = ...) -> None: ...
+    def __init__(self, data_type: Any, Index: int = ..., _0: Any = ..., _1: Any = ...) -> None: ...
     def Output(self) -> Any: """Output"""
 
 class InputActiveCamera:
@@ -587,7 +582,7 @@ class MaterialSelection:
 
 class MenuSwitch:
     """Select from multiple inputs by name"""
-    def __init__(self, active_index: int, active_item: Any, data_type: Any, Menu: Any = ..., A: Any = ..., B: Any = ..., : Any = ...) -> None: ...
+    def __init__(self, active_index: int, active_item: Any, data_type: Any, Menu: Any = ..., A: Any = ..., B: Any = ...) -> None: ...
     def Output(self) -> Any: """Output"""
 
 class MergeByDistance:
@@ -767,15 +762,13 @@ class RemoveAttribute:
 
 class RepeatInput:
     """Repeat Input"""
-    def __init__(self, Iterations: int = ..., : Any = ...) -> None: ...
+    def __init__(self, Iterations: int = ...) -> None: ...
     def Iteration(self) -> int: """Iteration"""
-    def (self) -> Any: """"""
 
 class RepeatOutput:
     """Repeat Output"""
-    def __init__(self, active_index: int, active_item: Any, inspection_index: int, Geometry: Any = ..., : Any = ...) -> None: ...
+    def __init__(self, active_index: int, active_item: Any, inspection_index: int, Geometry: Any = ...) -> None: ...
     def Geometry(self) -> Any: """Geometry"""
-    def (self) -> Any: """"""
 
 class ReplaceMaterial:
     """Swap one material with another"""
@@ -950,9 +943,8 @@ class SimulationInput:
 
 class SimulationOutput:
     """Output data from the simulation zone"""
-    def __init__(self, active_index: int, active_item: Any, Skip: bool = ..., Geometry: Any = ..., : Any = ...) -> None: ...
+    def __init__(self, active_index: int, active_item: Any, Skip: bool = ..., Geometry: Any = ...) -> None: ...
     def Geometry(self) -> Any: """Geometry"""
-    def (self) -> Any: """"""
 
 class SortElements:
     """Rearrange geometry elements, changing their indices"""
@@ -1023,7 +1015,7 @@ class SubdivisionSurface:
 
 class Switch:
     """Switch between two inputs"""
-    def __init__(self, input_type: Any, Switch: bool = ..., False: Any = ..., True: Any = ...) -> None: ...
+    def __init__(self, input_type: Any, Switch: bool = ..., on_False: Any = ..., on_True: Any = ...) -> None: ...
     def Output(self) -> Any: """Output"""
 
 class Tool3DCursor:
