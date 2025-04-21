@@ -80,7 +80,7 @@ def write_stub_file(domain, node_prefix, tree_type):
             # --- ENUM PROPERTIES ---
             enum_params = []
             for prop_id, prop in node.bl_rna.properties.items():
-                if prop_id in {'name', 'label', 'location', 'width', 'height'}:
+                if prop_id in {'name', 'label', 'location', 'width', 'height', 'bl_icon', 'warning_propagation'}:
                     continue
                 if prop.is_hidden or prop.is_readonly:
                     continue
