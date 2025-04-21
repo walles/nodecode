@@ -13,7 +13,7 @@ import os
 import re
 from collections import defaultdict
 
-# Output folder: relative to the .blend file
+# Output folder relative to the blend file
 base_path = bpy.path.abspath("//nodecode")
 os.makedirs(base_path, exist_ok=True)
 
@@ -35,9 +35,12 @@ def python_type(bl_type):
 def sanitize_name(name):
     return re.sub(r'\W|^(?=\d)', '_', name)
 
+def escape_doc(s: str) -> str:
+    return s.replace('"""', '\"\"\"').strip()
+
 def write_stub_file(domain, node_prefix, tree_type):
-    filename = os.path.join(base_path, f"{domain}.pyi")  # <-- generate .pyi files
-    with open(filename, "w") as f:
+    filename = os.path.join(base_path, f"{domain}.pyi")
+    with open(filename, "w", encoding="utf-8") as f:
         f.write("from typing import Any, Tuple\n\n")
 
         # Create a temporary node tree
@@ -46,9 +49,8 @@ def write_stub_file(domain, node_prefix, tree_type):
             mat.use_nodes = True
             tree = mat.node_tree
         elif tree_type == "CompositorNodeTree":
-            scene = bpy.context.scene
-            scene.use_nodes = True
-            tree = scene.node_tree
+            bpy.context.scene.use_nodes = True
+            tree = bpy.context.scene.node_tree
         elif tree_type == "GeometryNodeTree":
             tree = bpy.data.node_groups.new(name="TempGeoTree", type="GeometryNodeTree")
         else:
@@ -64,7 +66,7 @@ def write_stub_file(domain, node_prefix, tree_type):
             try:
                 node = tree.nodes.new(type=node_idname)
             except:
-                continue  # Skip nodes that can't be instantiated
+                continue  # Skip nodes that can’t be instantiated
 
             if node is None:
                 continue
@@ -74,7 +76,6 @@ def write_stub_file(domain, node_prefix, tree_type):
             for s in node.inputs:
                 input_counts[s.name] += 1
 
-            # Build input signature
             inputs = []
             input_name_indices = defaultdict(int)
             for s in node.inputs:
@@ -89,13 +90,20 @@ def write_stub_file(domain, node_prefix, tree_type):
                 inputs.append(f"{name}: {hint} = ...")
 
             short_name = cls_name[len(node_prefix):]
+            bl_label = getattr(node, 'bl_label', short_name)
+            bl_description = getattr(node, 'bl_description', '')
+            class_doc = escape_doc(bl_description or bl_label)
+
             f.write(f"class {short_name}:\n")
+            f.write(f'    """{class_doc}"""\n')
+
+            # Write __init__ signature
             if inputs:
                 f.write(f"    def __init__(self, {', '.join(inputs)}) -> None: ...\n")
             else:
                 f.write("    def __init__(self) -> None: ...\n")
 
-            # Handle outputs
+            # Handle output sockets
             output_counts = defaultdict(int)
             for s in node.outputs:
                 output_counts[s.name] += 1
@@ -110,14 +118,14 @@ def write_stub_file(domain, node_prefix, tree_type):
                     output_indices[base] += 1
                     name = f"{base}{output_indices[base]}"
                 return_type = python_type(s.type)
-                f.write(f"    def {name}(self) -> {return_type}: ...\n")
+                description = escape_doc(getattr(s, 'description', '') or s.name)
+                f.write(f'    def {name}(self) -> {return_type}: """{description}"""\n')
 
             f.write("\n")
 
-            if node is not None:
-                tree.nodes.remove(node)
+            # Clean up
+            tree.nodes.remove(node)
 
-        # Clean up
         if tree_type == "ShaderNodeTree":
             bpy.data.materials.remove(mat, do_unlink=True)
         elif tree_type == "GeometryNodeTree":
@@ -125,14 +133,14 @@ def write_stub_file(domain, node_prefix, tree_type):
 
     print(f"✅ Generated {filename}")
 
-# Generate .pyi stubs for each node domain
+# Generate .pyi stubs
 write_stub_file("shading", "ShaderNode", "ShaderNodeTree")
 write_stub_file("geometry", "GeometryNode", "GeometryNodeTree")
 write_stub_file("compositing", "CompositorNode", "CompositorNodeTree")
 
-# Create __init__.py to make nodecode a package
+# Ensure package file exists
 init_path = os.path.join(base_path, "__init__.py")
 with open(init_path, "w") as init_file:
-    init_file.write("# nodecode package\n")
+    init_file.write("# nodecode package stub\n")
 
-print(f"📦 nodecode .pyi stubs written to: {base_path}")
+print(f"📦 .pyi stub files with docstrings saved in: {base_path}")
