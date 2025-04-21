@@ -36,7 +36,7 @@ def sanitize_name(name):
     return re.sub(r'\W|^(?=\d)', '_', name)
 
 def write_stub_file(domain, node_prefix, tree_type):
-    filename = os.path.join(base_path, f"{domain}.py")
+    filename = os.path.join(base_path, f"{domain}.pyi")  # <-- generate .pyi files
     with open(filename, "w") as f:
         f.write("from typing import Any, Tuple\n\n")
 
@@ -125,7 +125,7 @@ def write_stub_file(domain, node_prefix, tree_type):
 
     print(f"✅ Generated {filename}")
 
-# Write all domains
+# Generate .pyi stubs for each node domain
 write_stub_file("shading", "ShaderNode", "ShaderNodeTree")
 write_stub_file("geometry", "GeometryNode", "GeometryNodeTree")
 write_stub_file("compositing", "CompositorNode", "CompositorNodeTree")
@@ -135,4 +135,4 @@ init_path = os.path.join(base_path, "__init__.py")
 with open(init_path, "w") as init_file:
     init_file.write("# nodecode package\n")
 
-print(f"📦 nodecode stubs written to: {base_path}")
+print(f"📦 nodecode .pyi stubs written to: {base_path}")
