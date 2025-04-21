@@ -43,7 +43,6 @@ def write_stub_file(domain, node_prefix, tree_type):
     with open(filename, "w", encoding="utf-8") as f:
         f.write("from typing import Any, Tuple\n\n")
 
-        # Create a temporary node tree
         if tree_type == "ShaderNodeTree":
             mat = bpy.data.materials.new("TempMat")
             mat.use_nodes = True
@@ -66,18 +65,35 @@ def write_stub_file(domain, node_prefix, tree_type):
             try:
                 node = tree.nodes.new(type=node_idname)
             except:
-                continue  # Skip nodes that can’t be instantiated
+                continue
 
             if node is None:
                 continue
 
-            # Count input socket names
+            short_name = cls_name[len(node_prefix):]
+            bl_label = getattr(node, 'bl_label', short_name)
+            bl_description = getattr(node, 'bl_description', '')
+            class_doc = escape_doc(bl_description or bl_label)
+            f.write(f"class {short_name}:\n")
+            f.write(f'    """{class_doc}"""\n')
+
+            # --- ENUM PROPERTIES ---
+            enum_params = []
+            for prop_id, prop in node.bl_rna.properties.items():
+                if prop_id in {'name', 'label', 'location', 'width', 'height'}:
+                    continue
+                if prop.is_hidden or prop.is_readonly:
+                    continue
+                if prop.type == 'ENUM':
+                    enum_params.append(f"{sanitize_name(prop_id)}: str")
+
+            # --- INPUTS ---
             input_counts = defaultdict(int)
             for s in node.inputs:
                 input_counts[s.name] += 1
 
-            inputs = []
             input_name_indices = defaultdict(int)
+            input_args = []
             for s in node.inputs:
                 count = input_counts[s.name]
                 base = sanitize_name(s.name)
@@ -87,23 +103,12 @@ def write_stub_file(domain, node_prefix, tree_type):
                     input_name_indices[base] += 1
                     name = f"{base}{input_name_indices[base]}"
                 hint = python_type(s.type)
-                inputs.append(f"{name}: {hint} = ...")
+                input_args.append(f"{name}: {hint} = ...")
 
-            short_name = cls_name[len(node_prefix):]
-            bl_label = getattr(node, 'bl_label', short_name)
-            bl_description = getattr(node, 'bl_description', '')
-            class_doc = escape_doc(bl_description or bl_label)
+            all_args = enum_params + input_args
+            f.write(f"    def __init__(self, {', '.join(all_args)}) -> None: ...\n")
 
-            f.write(f"class {short_name}:\n")
-            f.write(f'    """{class_doc}"""\n')
-
-            # Write __init__ signature
-            if inputs:
-                f.write(f"    def __init__(self, {', '.join(inputs)}) -> None: ...\n")
-            else:
-                f.write("    def __init__(self) -> None: ...\n")
-
-            # Handle output sockets
+            # --- OUTPUTS ---
             output_counts = defaultdict(int)
             for s in node.outputs:
                 output_counts[s.name] += 1
@@ -122,8 +127,6 @@ def write_stub_file(domain, node_prefix, tree_type):
                 f.write(f'    def {name}(self) -> {return_type}: """{description}"""\n')
 
             f.write("\n")
-
-            # Clean up
             tree.nodes.remove(node)
 
         if tree_type == "ShaderNodeTree":
