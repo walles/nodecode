@@ -20,10 +20,12 @@ editor, and edit them there.
 
 # TODO
 - Extract Python type stubs from Blender
+- Make sure the Python stubs come with type hints
 - Publish Python type stubs to PyPI
 - Make a Blender add-on that can show NodeCode for any node setup
   - Shaders
   - Geometry
   - Compositing
+- Ensure the generated code has type hints where applicable
 - Enable the add-on to create a new node setup (or overwrite an existing one?)
   from a NodeCode file
