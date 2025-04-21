@@ -10,6 +10,7 @@
 
 import bpy
 import os
+import re
 
 # Output folder: relative to the .blend file
 base_path = bpy.path.abspath("//nodecode")
@@ -33,8 +34,10 @@ def python_type(bl_type):
 def quote_name(name):
     return name if name.isidentifier() else f'"{name}"'
 
-def sanitize_output_name(name):
-    return name if name.isidentifier() else f'"{name}"'
+def sanitize_method_name(name):
+    # Ensure the name is a valid Python identifier
+    name = re.sub(r'\W|^(?=\d)', '_', name)
+    return name
 
 def write_stub_file(domain, node_prefix, tree_type):
     filename = os.path.join(base_path, f"{domain}.py")
@@ -84,9 +87,9 @@ def write_stub_file(domain, node_prefix, tree_type):
                 f.write("    def __init__(self) -> None: ...\n")
 
             for output_socket in node.outputs:
-                out_name = sanitize_output_name(output_socket.name)
-                type_hint = python_type(output_socket.type)
-                f.write(f"    {out_name}: {type_hint}\n")
+                method_name = sanitize_method_name(output_socket.name)
+                return_type = python_type(output_socket.type)
+                f.write(f"    def {method_name}(self) -> {return_type}: ...\n")
 
             f.write("\n")
 
