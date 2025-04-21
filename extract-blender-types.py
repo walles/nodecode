@@ -87,7 +87,6 @@ def sanitize_name(name):
 def escape_doc(s: str) -> str:
     escaped = s
     escaped = escaped.replace("\n", "\n\n")
-    escaped = escaped.replace('"""', '\"\"\"')
     return escaped.strip()
 
 def write_stub_file(domain, node_prefix, tree_type):

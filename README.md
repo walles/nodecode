@@ -23,6 +23,8 @@ editor, and edit them there.
   - Shaders
   - Geometry
   - Compositing
+  - This should be added to the View menu of the respective node editors. The
+    menu entry should say "NodeCode...".
 - Enable the add-on to create a new node setup (or overwrite an existing one?)
   from a NodeCode file
 - Document a versioning scheme based on the Blender version
