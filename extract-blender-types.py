@@ -1,4 +1,4 @@
-# Extract NodeCode types from a running Blender instance.
+# Extract Node Code types from a running Blender instance.
 #
 # Instructions:
 # 1. Open Blender

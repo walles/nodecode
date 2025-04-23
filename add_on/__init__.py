@@ -1,13 +1,13 @@
 import bpy
 
 bl_info = {
-    "name": "NodeCode",
+    "name": "Node Code",
     "blender": (4, 4, 0),
     "category": "Node",
     "description": "Serialize node trees to text and back",
     "author": "Johan Walles",
     "version": (0, 0, 0),
-    "location": "Shader Editor > View > NodeCode...",
+    "location": "Shader Editor > View > Node Code...",
     "support": "FIXME",
     "doc_url": "FIXME",
 }
@@ -15,19 +15,19 @@ bl_info = {
 # Function to return the multi-line text for the editor
 def get_nodecode_script():
     return "\n".join([
-        "# NodeCode Hello World Script",
+        "# Node Code Hello World Script",
         "print('Hello, World!')"
     ])
 
 # Operator to open a text editor with a hardcoded Python script
 class NODECODE_OT_open_text_editor(bpy.types.Operator):
     bl_idname = "nodecode.open_text_editor"
-    bl_label = "Open NodeCode Script"
-    bl_description = "Open a Python text editor with a NodeCode script"
+    bl_label = "Open Node Code Script"
+    bl_description = "Open a Python text editor with a Node Code script"
 
     def execute(self, context):
         # Create a new text block with a hardcoded script
-        text_data = bpy.data.texts.new("NodeCode_Hello_World.py")
+        text_data = bpy.data.texts.new("Node_Code_Hello_World.py")
         text_data.write(get_nodecode_script())
 
         # Open the text editor and display the new text block
@@ -47,7 +47,7 @@ class NODECODE_OT_open_text_editor(bpy.types.Operator):
 
 # Menu function to add the menu entry to the Shader Editor View menu
 def nodecode_menu_func(self, context):
-    self.layout.operator(NODECODE_OT_open_text_editor.bl_idname, text="NodeCode...")
+    self.layout.operator(NODECODE_OT_open_text_editor.bl_idname, text="Node Code...")
 
 # Register and unregister functions
 def register():
