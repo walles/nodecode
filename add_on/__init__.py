@@ -12,6 +12,13 @@ bl_info = {
     "doc_url": "FIXME",
 }
 
+# Function to return the multi-line text for the editor
+def get_nodecode_script():
+    return "\n".join([
+        "# NodeCode Hello World Script",
+        "print('Hello, World!')"
+    ])
+
 # Operator to open a text editor with a hardcoded Python script
 class NODECODE_OT_open_text_editor(bpy.types.Operator):
     bl_idname = "nodecode.open_text_editor"
@@ -21,8 +28,7 @@ class NODECODE_OT_open_text_editor(bpy.types.Operator):
     def execute(self, context):
         # Create a new text block with a hardcoded script
         text_data = bpy.data.texts.new("NodeCode_Hello_World.py")
-        text_data.write("# NodeCode Hello World Script\n")
-        text_data.write("print('Hello, World!')\n")
+        text_data.write(get_nodecode_script())
 
         # Open the text editor and display the new text block
         for area in context.screen.areas:
