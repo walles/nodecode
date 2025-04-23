@@ -120,6 +120,7 @@ def write_stub_file(domain, node_prefix, tree_type):
             node_idname = node_type.bl_rna.identifier
 
             try:
+                assert tree is not None
                 node = tree.nodes.new(type=node_idname)
             except:
                 continue

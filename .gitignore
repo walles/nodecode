@@ -1,2 +1,3 @@
 # Saving here makes extract-blender-types.py update the .pyi files in place
 /Untitled.blend
+__pycache__/
