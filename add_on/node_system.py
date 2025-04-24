@@ -25,6 +25,23 @@ class NodeSystem:
         """Adds a node to the system."""
         self.nodes.append(node)
 
+    def __str__(self) -> str:
+        """Generates a human-readable description of the NodeSystem."""
+        result = ["NodeSystem:"]
+        for node in self.nodes:
+            result.append(f"  Node: {node.name} (Type: {node.type})")
+            result.append("    Input Sockets:")
+            for input_socket in node.input_sockets:
+                if input_socket.source:
+                    source_info = f" (Source: {input_socket.source.node.name}.{input_socket.source.name})"
+                else:
+                    source_info = f" (Value: {input_socket.value})"
+                result.append(f"      - {input_socket.name}{source_info}")
+            result.append("    Output Sockets:")
+            for output_socket in node.output_sockets:
+                result.append(f"      - {output_socket.name}")
+        return "\n".join(result)
+
 class Socket:
     """Base class for sockets."""
     def __init__(self, name: str, node: Node) -> None:
