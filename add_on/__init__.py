@@ -13,15 +13,57 @@ bl_info = {
     "doc_url": "FIXME",
 }
 
-# Updated convert_to_node_system to return a NodeSystem object
+# Updated convert_to_node_system to treat properties as inputs and filter unneeded properties
 def convert_to_node_system(node_tree):
+    COMMON_NODE_PROPERTIES = {
+        'bl_description',
+        'bl_height_default',
+        'bl_height_max',
+        'bl_height_min',
+        'bl_icon',
+        'bl_idname',
+        'bl_label',
+        'bl_width_default',
+        'bl_width_max',
+        'bl_width_min',
+        'color',
+        'height',
+        'hide',
+        'label',
+        'location_absolute',
+        'location',
+        'mute',
+        'name',
+        'parent',
+        'select',
+        'show_options',
+        'show_preview',
+        'show_texture',
+        'use_custom_color',
+        'warning_propagation',
+        'width',
+    }
+
     node_system = NodeSystem()
 
     for node in node_tree.nodes:
         # Create a Node object
         node_obj = Node(name=node.name, node_type=node.bl_idname)
 
-        # Add input sockets
+        # Add input sockets for properties
+        for prop_id, prop in node.bl_rna.properties.items():
+            if prop_id in COMMON_NODE_PROPERTIES or prop.is_hidden or prop.is_readonly:
+                continue
+
+            socket_obj = InputSocket(
+                name=prop_id,
+                node=node_obj,
+                value=getattr(node, prop_id, None),
+                source=None
+            )
+            node_obj.add_input_socket(socket_obj)
+
+        # Add input sockets for node inputs
         for input_socket in node.inputs:
             socket_obj = InputSocket(
                 name=input_socket.name,

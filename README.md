@@ -20,11 +20,11 @@ editor, and edit them there.
 
 # TODO
 - Make a Blender add-on that can show Node Code for a Shaders node setup
-  - This should be added to the View menu of the respective node editors. The
-    menu entry should say "Node  Code...".
+  - OK: This should be added to the View menu of the respective node editors.
+    The menu entry should say "Node  Code...".
+  - OK: Make sure the generated tree contains the Target dropdown for the
+    Material Output node.
   - Make it generate Python code
-  - Make sure the generated tree contains the Target dropdown for the Material
-    Output node.
 - Enable the add-on to show Node Code for a Geometry node setup
 - Enable the add-on to show Node Code for a Compositing node setup
 - Enable the add-on to create a new node setup (or overwrite an existing one?)
