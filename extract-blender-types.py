@@ -15,7 +15,7 @@ import os
 import re
 from collections import defaultdict
 from datetime import datetime
-from add_on.common_properties import COMMON_NODE_PROPERTIES
+from add_on.common_properties import should_ignore_property
 
 # Output folder relative to the blend file
 base_path = bpy.path.abspath("//nodecode")
@@ -108,12 +108,8 @@ def write_stub_file(domain, node_prefix, tree_type):
             # --- NODE PROPERTIES WITH UI ELEMENTS ---
             ui_properties = []
             for prop_id, prop in node.bl_rna.properties.items():
-                # Skip properties that are hidden or read-only
-                if prop.is_hidden or prop.is_readonly:
-                    continue
-
-                # Skip properties that are common to all nodes
-                if prop_id in COMMON_NODE_PROPERTIES:
+                # Skip properties that should be ignored
+                if should_ignore_property(prop_id, prop):
                     continue
 
                 prop_type = python_type(prop.type)

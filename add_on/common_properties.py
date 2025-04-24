@@ -27,3 +27,6 @@ COMMON_NODE_PROPERTIES = {
     'warning_propagation',
     'width',
 }
+
+def should_ignore_property(prop_id, prop):
+    return prop_id in COMMON_NODE_PROPERTIES or prop.is_hidden or prop.is_readonly

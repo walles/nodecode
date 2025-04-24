@@ -1,6 +1,6 @@
 import bpy
 from .node_system import NodeSystem, Node, InputSocket, OutputSocket
-from .common_properties import COMMON_NODE_PROPERTIES
+from .common_properties import should_ignore_property
 
 bl_info = {
     "name": "Node Code",
@@ -14,7 +14,7 @@ bl_info = {
     "doc_url": "FIXME",
 }
 
-# Updated convert_to_node_system to treat properties as inputs and filter unneeded properties
+# Updated convert_to_node_system to use should_ignore_property
 def convert_to_node_system(node_tree):
     node_system = NodeSystem()
 
@@ -24,7 +24,7 @@ def convert_to_node_system(node_tree):
 
         # Add input sockets for properties
         for prop_id, prop in node.bl_rna.properties.items():
-            if prop_id in COMMON_NODE_PROPERTIES or prop.is_hidden or prop.is_readonly:
+            if should_ignore_property(prop_id, prop):
                 continue
 
             socket_obj = InputSocket(
