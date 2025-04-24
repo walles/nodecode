@@ -1,4 +1,5 @@
 import bpy
+from .node_system import NodeSystem, Node, InputSocket, OutputSocket
 
 bl_info = {
     "name": "Node Code",
@@ -12,23 +13,71 @@ bl_info = {
     "doc_url": "FIXME",
 }
 
-# Function to return the multi-line text for the editor
-def get_nodecode_script():
+# Updated convert_to_node_system to return a NodeSystem object
+def convert_to_node_system(node_tree):
+    node_system = NodeSystem()
+
+    for node in node_tree.nodes:
+        # Create a Node object
+        node_obj = Node(name=node.name, node_type=node.bl_idname)
+
+        # Add input sockets
+        for input_socket in node.inputs:
+            socket_obj = InputSocket(
+                name=input_socket.name,
+                node=node_obj,
+                value=input_socket.default_value if hasattr(input_socket, 'default_value') else None,
+                source=None  # Source will be set later if connected
+            )
+            node_obj.add_input_socket(socket_obj)
+
+        # Add output sockets
+        for output_socket in node.outputs:
+            socket_obj = OutputSocket(
+                name=output_socket.name,
+                node=node_obj
+            )
+            node_obj.add_output_socket(socket_obj)
+
+        # Add the node to the NodeSystem
+        node_system.add_node(node_obj)
+
+    # Set sources for input sockets
+    for node in node_system.nodes:
+        for input_socket in node.input_sockets:
+            for link in node_tree.links:
+                if link.to_socket.name == input_socket.name and link.to_node.name == node.name:
+                    source_node = next(n for n in node_system.nodes if n.name == link.from_node.name)
+                    source_socket = next(s for s in source_node.output_sockets if s.name == link.from_socket.name)
+                    input_socket.source = source_socket
+
+    return node_system
+
+# Updated get_nodecode_script to accept a node_tree parameter
+def get_nodecode_script(node_tree):
+    node_system = convert_to_node_system(node_tree)
+
+    node_system_str = str(node_system) if node_system else ""
+
     return "\n".join([
         "# Node Code Hello World Script",
-        "print('Hello, World!')"
+        "print('Hello, World!')",
+        node_system_str,
     ])
 
-# Operator to open a text editor with a hardcoded Python script
+# Updated execute method to pass the current node tree
 class NODECODE_OT_open_text_editor(bpy.types.Operator):
     bl_idname = "nodecode.open_text_editor"
     bl_label = "Open Node Code Script"
     bl_description = "Open a Python text editor with a Node Code script"
 
     def execute(self, context):
-        # Create a new text block with a hardcoded script
+        # Get the current node tree
+        node_tree = context.space_data.edit_tree if hasattr(context.space_data, 'edit_tree') else None
+
+        # Create a new text block with a script based on the current node tree
         text_data = bpy.data.texts.new("Node_Code_Hello_World.py")
-        text_data.write(get_nodecode_script())
+        text_data.write(get_nodecode_script(node_tree))
 
         # Open the text editor and display the new text block
         for area in context.screen.areas:

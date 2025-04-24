@@ -19,12 +19,14 @@ The text format is a subset of Python, so you can open Node Code files in a text
 editor, and edit them there.
 
 # TODO
-- Make a Blender add-on that can show Node Code for any node setup
-  - Shaders
-  - Geometry
-  - Compositing
+- Make a Blender add-on that can show Node Code for a Shaders node setup
   - This should be added to the View menu of the respective node editors. The
     menu entry should say "Node  Code...".
+  - Make it generate Python code
+  - Make sure the generated tree contains the Target dropdown for the Material
+    Output node.
+- Enable the add-on to show Node Code for a Geometry node setup
+- Enable the add-on to show Node Code for a Compositing node setup
 - Enable the add-on to create a new node setup (or overwrite an existing one?)
   from a Node Code file
 - Document a versioning scheme based on the Blender version
