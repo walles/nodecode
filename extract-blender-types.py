@@ -21,29 +21,34 @@ from add_on.common_properties import should_ignore_property
 base_path = bpy.path.abspath("//nodecode")
 os.makedirs(base_path, exist_ok=True)
 
+
 def python_type(bl_type):
     return {
-        'VALUE': 'float',
-        'INT': 'int',
-        'BOOLEAN': 'bool',
-        'RGBA': 'Tuple[float, float, float, float]',
-        'VECTOR': 'Tuple[float, float, float]',
-        'STRING': 'str',
-        'SHADER': 'Any',
-        'OBJECT': 'Any',
-        'GEOMETRY': 'Any',
-        'IMAGE': 'Any',
-        'COLLECTION': 'Any',
-    }.get(bl_type, 'Any')
+        "VALUE": "float",
+        "INT": "int",
+        "BOOLEAN": "bool",
+        "RGBA": "Tuple[float, float, float, float]",
+        "VECTOR": "Tuple[float, float, float]",
+        "STRING": "str",
+        "SHADER": "Any",
+        "OBJECT": "Any",
+        "GEOMETRY": "Any",
+        "IMAGE": "Any",
+        "COLLECTION": "Any",
+    }.get(bl_type, "Any")
+
 
 def pprint(obj) -> str:
     """Pretty print a Blender object."""
-    if hasattr(obj, 'bl_rna'):
-        return f"{obj.bl_rna.identifier}({', '.join(f'{k}={v}' for k, v in obj.items())})"
+    if hasattr(obj, "bl_rna"):
+        return (
+            f"{obj.bl_rna.identifier}({', '.join(f'{k}={v}' for k, v in obj.items())})"
+        )
     return str(obj)
 
+
 def sanitize_name(name):
-    sanitized = re.sub(r'\W|^(?=\d)', '_', name)
+    sanitized = re.sub(r"\W|^(?=\d)", "_", name)
     if sanitized == "False":
         sanitized = "on_False"
     elif sanitized == "True":
@@ -54,10 +59,12 @@ def sanitize_name(name):
 
     return sanitized
 
+
 def escape_doc(s: str) -> str:
     escaped = s
     escaped = escaped.replace("\n", "\n\n")
     return escaped.strip()
+
 
 def write_stub_file(domain, node_prefix, tree_type):
     filename = os.path.join(base_path, f"{domain}.pyi")
@@ -92,15 +99,15 @@ def write_stub_file(domain, node_prefix, tree_type):
             try:
                 assert tree is not None
                 node = tree.nodes.new(type=node_idname)
-            except:
+            except Exception:
                 continue
 
             if node is None:
                 continue
 
-            short_name = cls_name[len(node_prefix):]
-            bl_label = getattr(node, 'bl_label', short_name)
-            bl_description = getattr(node, 'bl_description', '')
+            short_name = cls_name[len(node_prefix) :]
+            bl_label = getattr(node, "bl_label", short_name)
+            bl_description = getattr(node, "bl_description", "")
             class_doc = escape_doc(bl_description or bl_label)
             f.write(f"class {short_name}:\n")
             f.write(f'    """{class_doc}"""\n')
@@ -160,7 +167,7 @@ def write_stub_file(domain, node_prefix, tree_type):
                     output_indices[base] += 1
                     name = f"{base}{output_indices[base]}"
                 return_type = python_type(s.type)
-                description = escape_doc(getattr(s, 'description', '') or s.name)
+                description = escape_doc(getattr(s, "description", "") or s.name)
                 f.write(f'    def {name}(self) -> {return_type}: """{description}"""\n')
 
             f.write("\n")
@@ -172,6 +179,7 @@ def write_stub_file(domain, node_prefix, tree_type):
             bpy.data.node_groups.remove(tree, do_unlink=True)
 
     print(f"✅ Generated {filename}")
+
 
 # Generate .pyi stubs
 write_stub_file("shading", "ShaderNode", "ShaderNodeTree")
