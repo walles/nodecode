@@ -15,41 +15,11 @@ import os
 import re
 from collections import defaultdict
 from datetime import datetime
+from add_on.common_properties import COMMON_NODE_PROPERTIES
 
 # Output folder relative to the blend file
 base_path = bpy.path.abspath("//nodecode")
 os.makedirs(base_path, exist_ok=True)
-
-# Common to all node types, storing these is not relevant for getting the right
-# output.
-COMMON_NODE_PROPERTIES = {
-    'bl_description',
-    'bl_height_default',
-    'bl_height_max',
-    'bl_height_min',
-    'bl_icon',
-    'bl_idname',
-    'bl_label',
-    'bl_width_default',
-    'bl_width_max',
-    'bl_width_min',
-    'color',
-    'height',
-    'hide',
-    'label',
-    'location_absolute',
-    'location',
-    'mute',
-    'name',
-    'parent',
-    'select',
-    'show_options',
-    'show_preview',
-    'show_texture',
-    'use_custom_color',
-    'warning_propagation',
-    'width',
-}
 
 def python_type(bl_type):
     return {

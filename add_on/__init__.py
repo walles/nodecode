@@ -1,5 +1,6 @@
 import bpy
 from .node_system import NodeSystem, Node, InputSocket, OutputSocket
+from .common_properties import COMMON_NODE_PROPERTIES
 
 bl_info = {
     "name": "Node Code",
@@ -15,35 +16,6 @@ bl_info = {
 
 # Updated convert_to_node_system to treat properties as inputs and filter unneeded properties
 def convert_to_node_system(node_tree):
-    COMMON_NODE_PROPERTIES = {
-        'bl_description',
-        'bl_height_default',
-        'bl_height_max',
-        'bl_height_min',
-        'bl_icon',
-        'bl_idname',
-        'bl_label',
-        'bl_width_default',
-        'bl_width_max',
-        'bl_width_min',
-        'color',
-        'height',
-        'hide',
-        'label',
-        'location_absolute',
-        'location',
-        'mute',
-        'name',
-        'parent',
-        'select',
-        'show_options',
-        'show_preview',
-        'show_texture',
-        'use_custom_color',
-        'warning_propagation',
-        'width',
-    }
-
     node_system = NodeSystem()
 
     for node in node_tree.nodes:
