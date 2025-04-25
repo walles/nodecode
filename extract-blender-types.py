@@ -16,6 +16,8 @@ import re
 from collections import defaultdict
 from datetime import datetime
 from add_on.common_properties import should_ignore_property
+from typing import Dict, Optional
+from bpy.types import NodeTree
 
 # Output folder relative to the blend file
 base_path = bpy.path.abspath("//nodecode")
@@ -77,11 +79,13 @@ def write_stub_file(domain, node_prefix, tree_type):
         f.write(f"# Generated from Blender {blender_version} on {current_time}\n")
         f.write("from typing import Any, Tuple\n\n")
 
+        tree: Optional[NodeTree]
         if tree_type == "ShaderNodeTree":
             mat = bpy.data.materials.new("TempMat")
             mat.use_nodes = True
             tree = mat.node_tree
         elif tree_type == "CompositorNodeTree":
+            assert bpy.context.scene is not None
             bpy.context.scene.use_nodes = True
             tree = bpy.context.scene.node_tree
         elif tree_type == "GeometryNodeTree":
@@ -89,6 +93,7 @@ def write_stub_file(domain, node_prefix, tree_type):
         else:
             print(f"Unknown tree type: {tree_type}")
             return
+        assert tree is not None
 
         node_classes = [cls for cls in dir(bpy.types) if cls.startswith(node_prefix)]
 
@@ -123,11 +128,11 @@ def write_stub_file(domain, node_prefix, tree_type):
                 ui_properties.append(f"{sanitize_name(prop_id)}: {prop_type}")
 
             # --- INPUTS ---
-            input_counts = defaultdict(int)
+            input_counts: Dict[str, int] = defaultdict(int)
+            input_name_indices: Dict[str, int] = defaultdict(int)
             for s in node.inputs:
                 input_counts[s.name] += 1
 
-            input_name_indices = defaultdict(int)
             input_args = []
             for s in node.inputs:
                 if not s.name:
@@ -149,11 +154,11 @@ def write_stub_file(domain, node_prefix, tree_type):
             f.write(f"    def __init__(self, {', '.join(all_args)}) -> None: ...\n")
 
             # --- OUTPUTS ---
-            output_counts = defaultdict(int)
+            output_counts: Dict[str, int] = defaultdict(int)
+            output_indices: Dict[str, int] = defaultdict(int)
             for s in node.outputs:
                 output_counts[s.name] += 1
 
-            output_indices = defaultdict(int)
             for s in node.outputs:
                 if not s.name:
                     print(f"Warning: Output {pprint(s)} has no name, skipping...")

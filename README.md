@@ -18,6 +18,18 @@ go.
 The text format is a subset of Python, so you can open Node Code files in a text
 editor, and edit them there.
 
+
+# Hacking
+
+Run `tox` frequently to verify your changes.
+
+## Layout
+- `extract-blender-types.py`: Extracts Python type stubs from Blender into [the
+  `nodecode/` directory](nodecode/). Documented in [the `nodecode/`
+  README.md](nodecode/README.md)
+- `add_on`: Contains the Blender Node Code add-on.
+
+
 # TODO
 - Make a Blender add-on that can show Node Code for a Shaders node setup
   - OK: This should be added to the View menu of the respective node editors.

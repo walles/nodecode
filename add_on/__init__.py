@@ -28,17 +28,17 @@ def convert_to_node_system(node_tree):
             if should_ignore_property(prop_id, prop):
                 continue
 
-            socket_obj = InputSocket(
+            input_socket_obj = InputSocket(
                 name=prop_id,
                 node=node_obj,
                 value=getattr(node, prop_id, None),
                 source=None,
             )
-            node_obj.add_input_socket(socket_obj)
+            node_obj.add_input_socket(input_socket_obj)
 
         # Add input sockets for node inputs
         for input_socket in node.inputs:
-            socket_obj = InputSocket(
+            input_socket_obj = InputSocket(
                 name=input_socket.name,
                 node=node_obj,
                 value=input_socket.default_value
@@ -46,12 +46,14 @@ def convert_to_node_system(node_tree):
                 else None,
                 source=None,  # Source will be set later if connected
             )
-            node_obj.add_input_socket(socket_obj)
+            node_obj.add_input_socket(input_socket_obj)
 
-        # Add output sockets
+        # Fixed redefinition error by renaming the variable
         for output_socket in node.outputs:
-            socket_obj = OutputSocket(name=output_socket.name, node=node_obj)
-            node_obj.add_output_socket(socket_obj)
+            output_socket_obj: OutputSocket = OutputSocket(
+                name=output_socket.name, node=node_obj
+            )
+            node_obj.add_output_socket(output_socket_obj)
 
         # Add the node to the NodeSystem
         node_system.add_node(node_obj)
