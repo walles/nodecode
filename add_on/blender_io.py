@@ -3,7 +3,7 @@ from .node_system import NodeSystem, Node, InputSocket, OutputSocket
 from .common_properties import should_ignore_property
 
 
-def convert_to_node_system(node_tree: bpy.types.NodeTree) -> NodeSystem:
+def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
     node_system = NodeSystem()
 
     for blender_node in node_tree.nodes:

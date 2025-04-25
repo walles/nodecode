@@ -1,5 +1,5 @@
 import bpy
-from .blender_io import convert_to_node_system
+from .blender_io import convert_from_blender
 
 bl_info = {
     "name": "Node Code",
@@ -16,7 +16,7 @@ bl_info = {
 
 # Updated get_nodecode_script to accept a node_tree parameter
 def get_nodecode_script(node_tree):
-    node_system = convert_to_node_system(node_tree)
+    node_system = convert_from_blender(node_tree)
 
     node_system_str = str(node_system) if node_system else ""
 

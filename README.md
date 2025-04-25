@@ -42,6 +42,7 @@ Run `tox` frequently to verify your changes.
 - Enable the add-on to create a new node setup (or overwrite an existing one?)
   from a Node Code file
 - Document a versioning scheme based on the Blender version
+- Resolve all FIXMEs
 - Publish Python type stubs to PyPI
 - Publish the add-on to Blender Extensions
 - Ensure the generated code has type hints where applicable
