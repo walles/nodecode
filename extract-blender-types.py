@@ -88,8 +88,6 @@ def write_stub_file(domain, node_prefix, tree_type):
             assert bpy.context.scene is not None
             bpy.context.scene.use_nodes = True
             tree = bpy.context.scene.node_tree
-        elif tree_type == "GeometryNodeTree":
-            tree = bpy.data.node_groups.new(name="TempGeoTree", type="GeometryNodeTree")
         else:
             print(f"Unknown tree type: {tree_type}")
             return
