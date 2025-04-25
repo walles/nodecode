@@ -1,4 +1,6 @@
 import bpy
+
+from .python_io import convert_to_python
 from .blender_io import convert_from_blender
 
 bl_info = {
@@ -18,15 +20,7 @@ bl_info = {
 def get_nodecode_script(node_tree):
     node_system = convert_from_blender(node_tree)
 
-    node_system_str = str(node_system) if node_system else ""
-
-    return "\n".join(
-        [
-            "# Node Code Hello World Script",
-            "print('Hello, World!')",
-            node_system_str,
-        ]
-    )
+    return convert_to_python(node_system)
 
 
 # Updated execute method to pass the current node tree

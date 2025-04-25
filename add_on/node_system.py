@@ -46,6 +46,20 @@ class NodeSystem:
                 result.append(f"      - {output_socket.name}")
         return "\n".join(result)
 
+    def get_output_node(self) -> Optional[Node]:
+        """
+        Finds and returns the output node in the system.
+
+        Returns:
+            Optional[Node]: The output node if found, otherwise None.
+        """
+        for node in self.nodes:
+            if (
+                node.type == "MaterialOutput"
+            ):  # Assuming "MaterialOutput" is the type for output nodes
+                return node
+        return None
+
 
 class Socket:
     """Base class for sockets."""
