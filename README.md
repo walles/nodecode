@@ -36,7 +36,10 @@ Run `tox` frequently to verify your changes.
     The menu entry should say "Node  Code...".
   - OK: Make sure the generated tree contains the Target dropdown for the
     Material Output node.
-  - Make it generate Python code
+  - OK: Make it generate Python code
+  - Quote string values
+  - Output vectors as tuples
+  - Make main return the right value
 - Enable the add-on to show Node Code for a Geometry node setup
 - Enable the add-on to show Node Code for a Compositing node setup
 - Enable the add-on to create a new node setup (or overwrite an existing one?)

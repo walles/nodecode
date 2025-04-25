@@ -1,3 +1,5 @@
+import re
+
 # Common properties to all node types, which are not relevant for processing.
 COMMON_NODE_PROPERTIES = {
     "bl_description",
@@ -31,3 +33,16 @@ COMMON_NODE_PROPERTIES = {
 
 def should_ignore_property(prop_id, prop):
     return prop_id in COMMON_NODE_PROPERTIES or prop.is_hidden or prop.is_readonly
+
+
+def pythonify(name: str) -> str:
+    sanitized = re.sub(r"\W|^(?=\d)", "_", name)
+    if sanitized == "False":
+        sanitized = "on_False"
+    elif sanitized == "True":
+        sanitized = "on_True"
+
+    if not sanitized:
+        raise ValueError(f"Cannot sanitize name: {name}")
+
+    return sanitized

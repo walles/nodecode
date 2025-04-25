@@ -12,10 +12,9 @@
 
 import bpy
 import os
-import re
 from collections import defaultdict
 from datetime import datetime
-from add_on.common_properties import should_ignore_property
+from add_on.utils import should_ignore_property, pythonify
 from typing import Dict, Optional
 from bpy.types import NodeTree
 
@@ -47,19 +46,6 @@ def pprint(obj) -> str:
             f"{obj.bl_rna.identifier}({', '.join(f'{k}={v}' for k, v in obj.items())})"
         )
     return str(obj)
-
-
-def sanitize_name(name):
-    sanitized = re.sub(r"\W|^(?=\d)", "_", name)
-    if sanitized == "False":
-        sanitized = "on_False"
-    elif sanitized == "True":
-        sanitized = "on_True"
-
-    if not sanitized:
-        raise ValueError(f"Cannot sanitize name: {name}")
-
-    return sanitized
 
 
 def escape_doc(s: str) -> str:
@@ -123,7 +109,7 @@ def write_stub_file(domain, node_prefix, tree_type):
                     continue
 
                 prop_type = python_type(prop.type)
-                ui_properties.append(f"{sanitize_name(prop_id)}: {prop_type}")
+                ui_properties.append(f"{pythonify(prop_id)}: {prop_type}")
 
             # --- INPUTS ---
             input_counts: Dict[str, int] = defaultdict(int)
@@ -138,7 +124,7 @@ def write_stub_file(domain, node_prefix, tree_type):
                     continue
 
                 count = input_counts[s.name]
-                base = sanitize_name(s.name)
+                base = pythonify(s.name)
                 if count == 1:
                     name = base
                 else:
@@ -163,7 +149,7 @@ def write_stub_file(domain, node_prefix, tree_type):
                     continue
 
                 count = output_counts[s.name]
-                base = sanitize_name(s.name)
+                base = pythonify(s.name)
                 if count == 1:
                     name = base
                 else:

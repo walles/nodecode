@@ -1,6 +1,6 @@
 import bpy
 from .node_system import NodeSystem, Node, InputSocket, OutputSocket
-from .common_properties import should_ignore_property
+from .utils import should_ignore_property
 
 
 def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
