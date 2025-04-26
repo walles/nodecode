@@ -1,6 +1,26 @@
 import bpy
 from .node_system import NodeSystem, Node, InputSocket, OutputSocket
 from .utils import should_ignore_property
+from typing import Any, Optional
+
+
+def to_python_datatype(value: Optional[bpy.types.Property]) -> Any:
+    """
+    Converts a Blender property value to a Python datatype.
+    """
+    if value is None:
+        return None
+
+    if "bpy" not in str(type(value)):
+        # Already a Python type
+        return value
+
+    if isinstance(value, bpy.types.bpy_prop_array):
+        return tuple([to_python_datatype(v) for v in value])
+
+    raise ValueError(
+        f"Unsupported property type: {type(value)} for {value}. Please implement a conversion for this type."
+    )
 
 
 def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
@@ -18,7 +38,7 @@ def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
             input_socket_obj = InputSocket(
                 name=prop_id,
                 node=node_obj,
-                value=getattr(blender_node, prop_id, None),
+                value=to_python_datatype(getattr(blender_node, prop_id, None)),
                 source=None,
             )
             node_obj.add_input_socket(input_socket_obj)
@@ -28,7 +48,7 @@ def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
             input_socket_obj = InputSocket(
                 name=blender_input_socket.name,
                 node=node_obj,
-                value=blender_input_socket.default_value
+                value=to_python_datatype(blender_input_socket.default_value)
                 if hasattr(blender_input_socket, "default_value")
                 else None,
                 source=None,  # Source will be set later if connected

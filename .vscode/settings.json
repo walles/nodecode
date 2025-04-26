@@ -4,5 +4,6 @@
         "reportAttributeAccessIssue": "none",
         "reportOptionalMemberAccess": "none",
         "reportPossiblyUnboundVariable": "none"
-    }
+    },
+    "editor.formatOnSave": true
 }
