@@ -28,7 +28,9 @@ def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
 
     for blender_node in node_tree.nodes:
         # Create a Node object
-        node_obj = Node(name=blender_node.name, node_type=blender_node.bl_idname)
+        node_type = blender_node.bl_idname
+        node_type = node_type.replace("ShaderNode", "")
+        node_obj = Node(name=blender_node.name, node_type=node_type)
 
         # Add input sockets for properties
         for prop_id, prop in blender_node.bl_rna.properties.items():
