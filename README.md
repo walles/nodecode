@@ -38,11 +38,12 @@ Run `tox` frequently to verify your changes.
   - OK: Make sure the generated tree contains the Target dropdown for the
     Material Output node.
   - OK: Make it generate Python code
+  - OK: Quote string values
+  - OK: Output tuple values as tuples
+  - Make main return the right value
+  - Make sure the generated code contains no forward references
   - After reading a blender node setup, call a normalize function to deduplicate
     node names by adding numbered suffixes when needed
-  - Quote string values
-  - Output tuple values as tuples
-  - Make main return the right value
 - Enable the add-on to show Node Code for a Geometry node setup
 - Enable the add-on to show Node Code for a Compositing node setup
 - Enable the add-on to create a new node setup (or overwrite an existing one?)

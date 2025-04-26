@@ -1,5 +1,42 @@
-from .node_system import NodeSystem
+from .node_system import NodeSystem, InputSocket
 from .utils import pythonify
+from typing import Optional, Any
+
+
+def render_value(value: Optional[Any]) -> str:
+    """
+    Converts a value to its Python representation.
+
+    Args:
+        value (Any): The value to convert.
+
+    Returns:
+        str: A string containing the Python representation of the value.
+    """
+    if value is None:
+        return "None"
+    if isinstance(value, str):
+        return f'"{value}"'
+    if isinstance(value, bool):
+        return "True" if value else "False"
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, float):
+        if value == 0:
+            return "0"
+        return f"{value:.3f}"
+    if isinstance(value, tuple):
+        return f"({', '.join(map(render_value, value))})"
+
+    raise ValueError(f"Unsupported value type: {type(value)}")
+
+
+def render_input_socket(socket: InputSocket) -> str:
+    if socket.source:
+        incoming = socket.source
+        return f"{pythonify(socket.name)}={pythonify(incoming.node.name)}.{pythonify(incoming.name)}()"
+
+    return f"{pythonify(socket.name)}={render_value(socket.value)}"
 
 
 def convert_to_python(node_system: NodeSystem) -> str:
@@ -26,14 +63,7 @@ def convert_to_python(node_system: NodeSystem) -> str:
         # Add input sockets as arguments
         inputs = []
         for input_socket in node.input_sockets:
-            if input_socket.source:
-                linked_output = input_socket.source
-                inputs.append(
-                    f"{pythonify(input_socket.name)}={pythonify(linked_output.node.name)}.{pythonify(linked_output.name)}()"
-                )
-            else:
-                inputs.append(f"{pythonify(input_socket.name)}={input_socket.value}")
-
+            inputs.append(render_input_socket(input_socket))
         constructor += ", ".join(inputs) + ")\n"
         python_code += constructor
 
