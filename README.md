@@ -40,8 +40,8 @@ Run `tox` frequently to verify your changes.
   - OK: Make it generate Python code
   - OK: Quote string values
   - OK: Output tuple values as tuples
+  - OK: Make sure the generated code contains no forward references
   - Make main return the right value
-  - Make sure the generated code contains no forward references
   - After reading a blender node setup, call a normalize function to deduplicate
     node names by adding numbered suffixes when needed
 - Enable the add-on to show Node Code for a Geometry node setup

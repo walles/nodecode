@@ -58,8 +58,9 @@ def convert_to_python(node_system: NodeSystem) -> str:
     # Define the main function
     python_code += "def main():\n"
 
-    # Iterate over nodes in the node system
-    for node in node_system.nodes:
+    # Iterate over nodes in the node system in the correct order so there are no
+    # forward references
+    for node in node_system.get_nodes_topologically():
         # Generate the constructor for the node
         constructor = (
             f"{indent}{pythonify(node.name)} = {pythonify(node.type)}(\n{indent * 2}"

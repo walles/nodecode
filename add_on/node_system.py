@@ -60,6 +60,30 @@ class NodeSystem:
                 return node
         return None
 
+    def get_nodes_topologically(self) -> List[Node]:
+        """
+        Sorts the nodes in topological order to ensure no forward references.
+
+        Returns:
+            List[Node]: A list of nodes sorted in topological order.
+        """
+        sorted_nodes = []
+        visited = set()
+
+        def visit(node: Node):
+            if node in visited:
+                return
+            visited.add(node)
+            for input_socket in node.input_sockets:
+                if input_socket.source:
+                    visit(input_socket.source.node)
+            sorted_nodes.append(node)
+
+        for node in self.nodes:
+            visit(node)
+
+        return sorted_nodes
+
 
 class Socket:
     """Base class for sockets."""
