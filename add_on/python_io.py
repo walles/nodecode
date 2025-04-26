@@ -3,6 +3,36 @@ from .utils import pythonify
 from typing import Optional, Any
 
 
+def render_float(value: float) -> str:
+    if value == 0:
+        return "0"
+
+    absvalue = abs(value)
+    sign = "-" if value < 0 else ""
+    if absvalue < 0.000001:
+        return f"{sign}{absvalue:.9f}"
+    if absvalue < 0.00001:
+        return f"{sign}{absvalue:.8f}"
+    if absvalue < 0.0001:
+        return f"{sign}{absvalue:.7f}"
+    if absvalue < 0.001:
+        return f"{sign}{absvalue:.6f}"
+    if absvalue < 0.01:
+        return f"{sign}{absvalue:.5f}"
+    if absvalue < 0.1:
+        return f"{sign}{absvalue:.4f}"
+    if absvalue < 1:
+        return f"{sign}{absvalue:.3f}"
+    if absvalue < 10:
+        return f"{sign}{absvalue:.3f}"
+    if absvalue < 100:
+        return f"{sign}{absvalue:.2f}"
+    if absvalue < 1000:
+        return f"{sign}{absvalue:.1f}"
+
+    return f"{sign}{int(absvalue)}"
+
+
 def render_value(value: Optional[Any]) -> str:
     """
     Converts a value to its Python representation.
@@ -22,9 +52,7 @@ def render_value(value: Optional[Any]) -> str:
     if isinstance(value, int):
         return str(value)
     if isinstance(value, float):
-        if value == 0:
-            return "0"
-        return f"{value:.3f}"
+        return render_float(value)
     if isinstance(value, tuple):
         return f"({', '.join(map(render_value, value))})"
 
