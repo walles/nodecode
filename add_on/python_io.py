@@ -56,7 +56,7 @@ def convert_to_python(node_system: NodeSystem) -> str:
     python_code = "from nodecode.shading import *\n\n"
 
     # Define the main function
-    python_code += "def main():\n"
+    python_code += "def main() -> OutputMaterial:\n"
 
     # Iterate over nodes in the node system in the correct order so there are no
     # forward references
@@ -70,19 +70,14 @@ def convert_to_python(node_system: NodeSystem) -> str:
         inputs = []
         for input_socket in node.input_sockets:
             inputs.append(render_input_socket(input_socket))
-        constructor += f",\n{indent * 2}".join(inputs) + ")\n"
+        constructor += f",\n{indent * 2}".join(inputs) + ")\n\n"
         python_code += constructor
 
     # Add the return statement for the output node
     output_node = node_system.get_output_node()
-    if output_node:
-        output_constructor = f"{indent}return {pythonify(output_node.name)}("
-        outputs = []
-        for output_socket in output_node.output_sockets:
-            outputs.append(
-                f"{pythonify(output_socket.name)}={pythonify(output_socket.name)}()"
-            )
-        output_constructor += ", ".join(outputs) + ")\n"
-        python_code += output_constructor
+    if not output_node:
+        raise ValueError("No output node found in the node system.")
+
+    python_code += f"{indent}return {pythonify(output_node.name)}\n"
 
     return python_code

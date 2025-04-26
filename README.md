@@ -41,9 +41,11 @@ Run `tox` frequently to verify your changes.
   - OK: Quote string values
   - OK: Output tuple values as tuples
   - OK: Make sure the generated code contains no forward references
-  - Make main return the right value
+  - OK: Make main return the right value
   - After reading a blender node setup, call a normalize function to deduplicate
     node names by adding numbered suffixes when needed
+  - Consider whether we can just not include default values in the generated
+    code?
 - Enable the add-on to show Node Code for a Geometry node setup
 - Enable the add-on to show Node Code for a Compositing node setup
 - Enable the add-on to create a new node setup (or overwrite an existing one?)

@@ -54,9 +54,7 @@ class NodeSystem:
             Optional[Node]: The output node if found, otherwise None.
         """
         for node in self.nodes:
-            if (
-                node.type == "MaterialOutput"
-            ):  # Assuming "MaterialOutput" is the type for output nodes
+            if node.type == "OutputMaterial":
                 return node
         return None
 
