@@ -41,6 +41,10 @@ class NODECODE_OT_open_text_editor(bpy.types.Operator):
         text_data = bpy.data.texts.new("Node_Code_Hello_World.py")
         text_data.write(get_nodecode_script(node_tree))
 
+        # Without this the editor will show the end of the text, and sometimes
+        # not even that.
+        text_data.cursor_set(line=0, character=0)
+
         # Open the text editor and display the new text block
         for area in context.screen.areas:
             if area.type == "TEXT_EDITOR":
