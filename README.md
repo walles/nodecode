@@ -44,7 +44,8 @@ Run `tox` frequently to verify your changes.
   - OK: Make main return the right value
   - After reading a blender node setup, call a normalize function to deduplicate
     node names by adding numbered suffixes when needed
-  - Test with a color ramp node
+  - In the generated Python, make variable names all lowercase
+  - Make sure color ramp nodes are properly converted to Python
   - Consider whether we can just not include default values in the generated
     code?
 - Enable the add-on to show Node Code for a Geometry node setup
