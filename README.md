@@ -43,13 +43,23 @@ Run `tox` frequently to verify your changes.
   - OK: Make sure the generated code contains no forward references
   - OK: Make main return the right value
 - Enable the add-on to generate a node setup from Node Code source
-  - Test with a color ramp node
-- Enable the add-on to show Node Code for a Geometry node setup
-- Enable the add-on to show Node Code for a Compositing node setup
+- Test roundtripping the default material node setup
+- Test roundtripping a node setup witha Color Ramp node
+- Make extract-blender-types.py extract Color Ramp nodes
+- Have a look at the Node Runner UI, https://github.com/Noah4ever/node_runner,
+  about 1m45s into the video. Should we take inspiration from that? Right click
+  the node area for Node Code access?
+- Make sure we handle node groups
+  - Read them from Blender
+  - Write them to Python
+  - Read them from Python
+  - Write them to Blender
 - Adding multiple noise nodes in Blender names them Noise, Noise.001, Noise.002,
   etc. Convert this naming scheme to either just Noise (if there is only one),
   or to Noise_1, Noise_2, etc if there are multiple. This will look nicer in the
   Python code.
+- Enable the add-on to show Node Code for a Geometry node setup
+- Enable the add-on to show Node Code for a Compositing node setup
 - Consider whether we could / should exclude default values in the generated
   code? This would make Principled BSDF nodes much easier to read.
 - Document a versioning scheme based on the Blender version

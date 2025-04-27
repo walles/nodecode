@@ -49,9 +49,7 @@ def pprint(obj) -> str:
 
 
 def escape_doc(s: str) -> str:
-    escaped = s
-    escaped = escaped.replace("\n", "\n\n")
-    return escaped.strip()
+    return s.replace("\n", "\n\n").strip()
 
 
 def write_stub_file(domain, node_prefix, tree_type):
@@ -88,13 +86,14 @@ def write_stub_file(domain, node_prefix, tree_type):
             try:
                 assert tree is not None
                 node = tree.nodes.new(type=node_idname)
-            except Exception:
+            except Exception as e:
+                print(f"Error creating node {cls_name} of type {node_idname}: {e}")
                 continue
 
             if node is None:
                 continue
 
-            short_name = cls_name[len(node_prefix) :]
+            short_name = cls_name.removeprefix(node_prefix)
             bl_label = getattr(node, "bl_label", short_name)
             bl_description = getattr(node, "bl_description", "")
             class_doc = escape_doc(bl_description or bl_label)
@@ -170,9 +169,10 @@ def write_stub_file(domain, node_prefix, tree_type):
     print(f"✅ Generated {filename}")
 
 
+print("🔄 Generating .pyi stub files...")
+
 # Generate .pyi stubs
 write_stub_file("shading", "ShaderNode", "ShaderNodeTree")
-write_stub_file("geometry", "GeometryNode", "GeometryNodeTree")
 write_stub_file("compositing", "CompositorNode", "CompositorNodeTree")
 
 # Ensure package file exists
