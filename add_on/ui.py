@@ -1,6 +1,6 @@
 import bpy
 
-from .python_io import convert_to_python
+from .to_python import convert_to_python
 from .blender_io import convert_from_blender
 
 
