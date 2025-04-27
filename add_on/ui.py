@@ -3,18 +3,6 @@ import bpy
 from .python_io import convert_to_python
 from .blender_io import convert_from_blender
 
-bl_info = {
-    "name": "Node Code",
-    "blender": (4, 4, 0),
-    "category": "Node",
-    "description": "Serialize node trees to text and back",
-    "author": "Johan Walles",
-    "version": (0, 0, 0),
-    "location": "Shader Editor > View > Node Code...",
-    "support": "FIXME",
-    "doc_url": "FIXME",
-}
-
 
 # Updated get_nodecode_script to accept a node_tree parameter
 def get_nodecode_script(node_tree):
