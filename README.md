@@ -42,16 +42,16 @@ Run `tox` frequently to verify your changes.
   - OK: Output tuple values as tuples
   - OK: Make sure the generated code contains no forward references
   - OK: Make main return the right value
-  - After reading a blender node setup, call a normalize function to deduplicate
-    node names by adding numbered suffixes when needed
-  - In the generated Python, make variable names all lowercase
-  - Make sure color ramp nodes are properly converted to Python
-  - Consider whether we can just not include default values in the generated
-    code?
+- Enable the add-on to generate a node setup from Node Code source
+  - Test with a color ramp node
 - Enable the add-on to show Node Code for a Geometry node setup
 - Enable the add-on to show Node Code for a Compositing node setup
-- Enable the add-on to create a new node setup (or overwrite an existing one?)
-  from a Node Code file
+- Adding multiple noise nodes in Blender names them Noise, Noise.001, Noise.002,
+  etc. Convert this naming scheme to either just Noise (if there is only one),
+  or to Noise_1, Noise_2, etc if there are multiple. This will look nicer in the
+  Python code.
+- Consider whether we could / should exclude default values in the generated
+  code? This would make Principled BSDF nodes much easier to read.
 - Document a versioning scheme based on the Blender version
 - Resolve all FIXMEs
 - Publish Python type stubs to PyPI

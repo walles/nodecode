@@ -1,3 +1,7 @@
+# Required by Python 3.13 for Python to ignore type hints at runtime.
+# Without this, running "tox" fails with annotation typing errors.
+from __future__ import annotations
+
 import bpy
 from .node_system import NodeSystem, Node, InputSocket, OutputSocket
 from .utils import should_ignore_property

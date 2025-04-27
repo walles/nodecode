@@ -2,7 +2,7 @@ import unittest
 from add_on.python_io import render_value, render_float
 
 
-class TestRenderValue(unittest.TestCase):
+class TestPythonIO(unittest.TestCase):
     def test_render_value_with_none(self) -> None:
         self.assertEqual(render_value(None), "None")
 
@@ -24,7 +24,3 @@ class TestRenderValue(unittest.TestCase):
         self.assertEqual(render_float(-0.00001234), "-0.0000123")
         self.assertEqual(render_float(-12.3456789), "-12.35")
         self.assertEqual(render_float(-1234567.89), "-1234567")
-
-
-if __name__ == "__main__":
-    unittest.main()
