@@ -32,16 +32,6 @@ Run `tox` frequently to verify your changes.
 
 # TODO
 
-- Make a Blender add-on that can show Node Code for a Shaders node setup
-  - OK: This should be added to the View menu of the respective node editors.
-    The menu entry should say "Node Code...".
-  - OK: Make sure the generated tree contains the Target dropdown for the
-    Material Output node.
-  - OK: Make it generate Python code
-  - OK: Quote string values
-  - OK: Output tuple values as tuples
-  - OK: Make sure the generated code contains no forward references
-  - OK: Make main return the right value
 - Enable the add-on to generate a node setup from Node Code source
 - Test roundtripping the default material node setup
 - Test roundtripping a node setup witha Color Ramp node
@@ -74,3 +64,13 @@ Run `tox` frequently to verify your changes.
 
 - Extract Python type stubs from Blender
 - Make sure the Python stubs come with type hints
+- Make a Blender add-on that can show Node Code for a Shaders node setup
+  - This should be added to the View menu of the respective node editors. The
+    menu entry should say "Node Code...".
+  - Make sure the generated tree contains the Target dropdown for the Material
+    Output node.
+  - Make it generate Python code
+  - Quote string values
+  - Output tuple values as tuples
+  - Make sure the generated code contains no forward references
+  - Make main return the right value
