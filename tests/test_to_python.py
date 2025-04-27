@@ -2,7 +2,7 @@ import unittest
 from add_on.to_python import render_value, render_float
 
 
-class TestPythonIO(unittest.TestCase):
+class TestToPython(unittest.TestCase):
     def test_render_value_with_none(self) -> None:
         self.assertEqual(render_value(None), "None")
 

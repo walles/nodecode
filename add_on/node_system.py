@@ -29,7 +29,7 @@ class NodeSystem:
         """Adds a node to the system."""
         self.nodes.append(node)
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         """Generates a human-readable description of the NodeSystem."""
         result = ["NodeSystem:"]
         for node in self.nodes:
