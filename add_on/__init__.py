@@ -11,13 +11,13 @@ bl_info = {
 }
 
 
-def register():
+def register() -> None:
     from .ui import register
 
     register()
 
 
-def unregister():
+def unregister() -> None:
     from .ui import unregister
 
     unregister()

@@ -5,7 +5,7 @@ from .blender_io import convert_from_blender
 
 
 # Updated get_nodecode_script to accept a node_tree parameter
-def get_nodecode_script(node_tree):
+def get_nodecode_script(node_tree) -> str:
     node_system = convert_from_blender(node_tree)
 
     return convert_to_python(node_system)

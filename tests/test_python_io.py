@@ -3,10 +3,10 @@ from add_on.python_io import render_value, render_float
 
 
 class TestRenderValue(unittest.TestCase):
-    def test_render_value_with_none(self):
+    def test_render_value_with_none(self) -> None:
         self.assertEqual(render_value(None), "None")
 
-    def test_render_float(self):
+    def test_render_float(self) -> None:
         self.assertEqual(render_float(0.0), "0")
         self.assertEqual(render_float(0.00001234), "0.0000123")
         self.assertEqual(render_float(0.00012345), "0.000123")

@@ -68,7 +68,7 @@ class NodeSystem:
         sorted_nodes = []
         visited = set()
 
-        def visit(node: Node):
+        def visit(node: Node) -> None:
             if node in visited:
                 return
             visited.add(node)
