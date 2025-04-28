@@ -31,6 +31,7 @@ def convert_from_python(nodecode_py: str) -> NodeSystem:
         if not isinstance(ast_node.value, ast.Call):
             raise ValueError("Only function calls are supported as assignment values")
         function_call: ast.Call = ast_node.value
+        assert isinstance(function_call.func, ast.Name)
         function_name = function_call.func.id
 
         node = Node(variable_name, function_name)
@@ -56,7 +57,7 @@ def convert_from_python(nodecode_py: str) -> NodeSystem:
                 continue
 
             node.add_input_socket(
-                InputSocket(arg_name, node, parse_input_value(keyword.value))
+                InputSocket(arg_name, node, parse_input_value(keyword.value), None)
             )
 
         # - Populate the node's input sockets from the constructor parameters
@@ -75,6 +76,8 @@ def convert_from_python(nodecode_py: str) -> NodeSystem:
 def parse_input_source(
     names_to_nodes: Dict[str, Node], value: ast.Call
 ) -> OutputSocket:
+    assert isinstance(value.func, ast.Attribute)
+    assert isinstance(value.func.value, ast.Name)
     source_node_name = value.func.value.id
     source_node = names_to_nodes[source_node_name]
     source_socket_name = value.func.attr

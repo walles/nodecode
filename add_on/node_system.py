@@ -117,7 +117,7 @@ class InputSocket(Socket):
     """Represents an input socket."""
 
     def __init__(
-        self, name: str, node: Node, value: Any, source: Optional[OutputSocket] = None
+        self, name: str, node: Node, value: Any, source: Optional[OutputSocket]
     ) -> None:
         super().__init__(name, node)
         self.value: Any = value

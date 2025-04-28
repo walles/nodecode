@@ -34,7 +34,7 @@ Run `tox` frequently to verify your changes.
 
 - Enable the add-on to generate a node setup from Node Code source
 - Test roundtripping the default material node setup
-- Test roundtripping a node setup witha Color Ramp node
+- Test roundtripping a node setup with a Color Ramp node
 - Make extract-blender-types.py extract Color Ramp nodes
 - Have a look at the Node Runner UI, https://github.com/Noah4ever/node_runner,
   about 1m45s into the video. Should we take inspiration from that? Right click
