@@ -74,3 +74,4 @@ Run `tox` frequently to verify your changes.
   - Output tuple values as tuples
   - Make sure the generated code contains no forward references
   - Make main return the right value
+- Implement converting Node Code to an internal node system object

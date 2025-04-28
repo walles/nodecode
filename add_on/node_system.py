@@ -18,6 +18,21 @@ class Node:
         """Adds an output socket to the node."""
         self.output_sockets.append(socket)
 
+    def get_output_socket(self, name: str) -> Optional["OutputSocket"]:
+        """
+        Finds and returns an output socket by its name.
+
+        Args:
+            name (str): The name of the output socket.
+
+        Returns:
+            Optional[OutputSocket]: The output socket if found, otherwise None.
+        """
+        for socket in self.output_sockets:
+            if socket.name == name:
+                return socket
+        return None
+
 
 class NodeSystem:
     """Represents a system containing multiple nodes."""

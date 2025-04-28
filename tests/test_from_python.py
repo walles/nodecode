@@ -41,7 +41,7 @@ def main() -> OutputMaterial:
         output_node.add_input_socket(InputSocket("is_active_output", output_node, True))
         output_node.add_input_socket(InputSocket("target", output_node, "ALL"))
         output_node.add_input_socket(
-            InputSocket("Surface", output_node, diffuse_bsdf_output)
+            InputSocket("Surface", output_node, None, diffuse_bsdf_output)
         )
         output_node.add_input_socket(InputSocket("Volume", output_node, None))
         output_node.add_input_socket(
