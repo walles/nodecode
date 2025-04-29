@@ -32,9 +32,6 @@ Run `tox` frequently to verify your changes.
 
 # TODO
 
-- Have a look at the Node Runner UI, https://github.com/Noah4ever/node_runner,
-  about 1m45s into the video. Should we take inspiration from that? Right click
-  the node area for Node Code access?
 - Enable the add-on to generate a node setup from Node Code source
 - Test roundtripping the default material node setup
 - Test roundtripping a node setup with a Color Ramp node
@@ -79,3 +76,4 @@ Run `tox` frequently to verify your changes.
   - Make sure the generated code contains no forward references
   - Make main return the right value
 - Implement converting Node Code to an internal node system object
+- Right click the node area for Node Code access
