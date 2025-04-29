@@ -49,17 +49,22 @@ class NODECODE_OT_open_text_editor(bpy.types.Operator):
         return {"FINISHED"}
 
 
-# Menu function to add the menu entry to the Shader Editor View menu
+# Menu function to add the menu entry to the Shader Node right-click menu
 def nodecode_menu_func(self, context):
-    self.layout.operator(NODECODE_OT_open_text_editor.bl_idname, text="Node Code...")
+    self.layout.separator()  # Add a divider
+    self.layout.operator(
+        NODECODE_OT_open_text_editor.bl_idname, text="Export Node Code..."
+    )
 
 
 # Register and unregister functions
 def register():
     bpy.utils.register_class(NODECODE_OT_open_text_editor)
-    bpy.types.NODE_MT_view.append(nodecode_menu_func)
+    bpy.types.NODE_MT_context_menu.append(nodecode_menu_func)  # Add to right-click menu
 
 
 def unregister():
     bpy.utils.unregister_class(NODECODE_OT_open_text_editor)
-    bpy.types.NODE_MT_view.remove(nodecode_menu_func)
+    bpy.types.NODE_MT_context_menu.remove(
+        nodecode_menu_func
+    )  # Remove from right-click menu
