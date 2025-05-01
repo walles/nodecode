@@ -1,5 +1,5 @@
 import bpy
-from bpy.types import Operator
+from bpy.types import Operator, SpaceTextEditor, Screen
 from bpy.props import StringProperty
 
 from .to_python import convert_to_python
@@ -11,6 +11,26 @@ def get_nodecode_script(node_tree) -> str:
     node_system = convert_from_blender(node_tree)
 
     return convert_to_python(node_system)
+
+
+def get_text_editor(screen: Screen) -> SpaceTextEditor:
+    for area in screen.areas:
+        if area.type == "TEXT_EDITOR":
+            assert isinstance(area.spaces.active, SpaceTextEditor), (
+                "Expected SpaceTextEditor"
+            )
+            return area.spaces.active
+
+    # No text editor is open, switch an area to the text editor
+    for area in screen.areas:
+        if area.type == "VIEW_3D":  # Switch a 3D View area to a text editor
+            area.type = "TEXT_EDITOR"
+            assert isinstance(area.spaces.active, SpaceTextEditor), (
+                "Expected SpaceTextEditor"
+            )
+            return area.spaces.active
+
+    raise RuntimeError("Unable to find or create a text editor area.")
 
 
 # Updated execute method to pass the current node tree
@@ -35,18 +55,7 @@ class NODECODE_OT_export_node_code(bpy.types.Operator):
         # not even that.
         text_data.cursor_set(line=0, character=0)
 
-        # Open the text editor and display the new text block
-        for area in context.screen.areas:
-            if area.type == "TEXT_EDITOR":
-                area.spaces.active.text = text_data
-                break
-        else:
-            # If no text editor is open, switch an area to the text editor
-            for area in context.screen.areas:
-                if area.type == "VIEW_3D":  # Switch a 3D View area to a text editor
-                    area.type = "TEXT_EDITOR"
-                    area.spaces.active.text = text_data
-                    break
+        get_text_editor(context.screen).text = text_data
 
         return {"FINISHED"}
 
