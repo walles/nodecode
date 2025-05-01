@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import Operator, SpaceTextEditor, Screen
-from bpy.props import StringProperty
+import textwrap
 
 from .to_python import convert_to_python
 from .blender_io import convert_from_blender
@@ -64,24 +64,18 @@ class NODECODE_OT_export_node_code(bpy.types.Operator):
 class NODECODE_OT_import_node_code(Operator):
     bl_idname = "nodecode.import_node_code"
     bl_label = "Import Node Code"
-    bl_description = "Open a dialog to paste Node Code for import"
-
-    # Blender needs a : annotation, which clashes with mypy's idea about how to
-    # do type checking. Tell mypy to ignore this line.
-    node_code: StringProperty(  # type: ignore[valid-type]
-        name="Node Code", description="Paste your Node Code here", default=""
-    )
+    bl_description = "Open a text editor where Node Code can be pasted for import"
 
     def execute(self, context):
-        self.report({"INFO"}, f"Node Code: {self.node_code}")
+        text = bpy.data.texts.new("Node_Code_Import.py")
+        text.write(
+            textwrap.dedent("""
+        # Right-click and choose "Import Node Code" to import the code after pasting it here.
+        """).lstrip()
+        )
+        get_text_editor(context.screen).text = text
+
         return {"FINISHED"}
-
-    def draw(self, context):
-        layout = self.layout
-        layout.prop(self, "node_code", text="Paste Node Code")
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
 
 
 def nodecode_menu_func(self, context):
