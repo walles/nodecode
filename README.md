@@ -33,6 +33,9 @@ Run `tox` frequently to verify your changes.
 # TODO
 
 - Enable the add-on to generate a node setup from Node Code source
+  - Verify input socket values get populated correctly
+  - Try with a multiple nodes setup to verify its layout
+- Try importing into a freshly started Blender instance
 - Test roundtripping the default material node setup
 - Test roundtripping a node setup with a Color Ramp node
 - Make extract-blender-types.py extract Color Ramp nodes

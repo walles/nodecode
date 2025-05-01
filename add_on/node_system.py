@@ -6,7 +6,7 @@ class Node:
 
     def __init__(self, name: str, node_type: str) -> None:
         self.name: str = name
-        self.type: str = node_type
+        self.node_type: str = node_type
         self.input_sockets: List[InputSocket] = []
         self.output_sockets: List[OutputSocket] = []
 
@@ -48,7 +48,7 @@ class NodeSystem:
         """Generates a human-readable description of the NodeSystem."""
         result = ["NodeSystem:"]
         for node in self.nodes:
-            result.append(f"  Node: {node.name} (Type: {node.type})")
+            result.append(f"  Node: {node.name} (Type: {node.node_type})")
             result.append("    Input Sockets:")
             for input_socket in node.input_sockets:
                 if input_socket.source:
@@ -69,7 +69,7 @@ class NodeSystem:
             Optional[Node]: The output node if found, otherwise None.
         """
         for node in self.nodes:
-            if node.type == "OutputMaterial":
+            if node.node_type == "OutputMaterial":
                 return node
         return None
 

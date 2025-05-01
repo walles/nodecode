@@ -91,10 +91,19 @@ class NODECODE_OT_text_editor_import_node_code(Operator):
         text_block = text_editor.text
         assert text_block is not None, "No text block found in the text editor"
 
-        # Here you would implement the logic to import the node code from the text block
-        # For now, we just print the content to the console
-        print("Node Code to Import:")
-        print(text_block.as_string())
+        # Convert the text block content into a NodeSystem
+        from .from_python import convert_from_python
+        from .blender_io import convert_to_blender
+
+        node_system = convert_from_python(text_block.as_string())
+
+        # Convert the NodeSystem into a new Blender material
+        material = convert_to_blender(node_system)
+
+        # Update the shader editor to show the new material
+        for area in context.screen.areas:
+            if area.type == "NODE_EDITOR":
+                area.spaces.active.node_tree = material.node_tree
 
         return {"FINISHED"}
 
@@ -118,27 +127,25 @@ def nodecode_text_editor_menu_func(self, context):
     )
 
 
-# Register and unregister functions
+# Maintain a list of registered classes to avoid duplicate registration
+classes = [
+    NODECODE_OT_export_node_code,
+    NODECODE_OT_material_import_node_code,
+    NODECODE_OT_text_editor_import_node_code,
+]
+
+
 def register():
-    bpy.utils.register_class(NODECODE_OT_export_node_code)
-    bpy.utils.register_class(NODECODE_OT_material_import_node_code)
-    bpy.utils.register_class(
-        NODECODE_OT_text_editor_import_node_code
-    )  # Ensure this class is registered
-    bpy.types.NODE_MT_context_menu.append(
-        nodecode_material_menu_func
-    )  # Add to shader editor right-click menu
-    bpy.types.TEXT_MT_context_menu.append(
-        nodecode_text_editor_menu_func
-    )  # Add to text editor right-click menu
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    bpy.types.NODE_MT_context_menu.append(nodecode_material_menu_func)
+    bpy.types.TEXT_MT_context_menu.append(nodecode_text_editor_menu_func)
 
 
 def unregister():
-    bpy.utils.unregister_class(NODECODE_OT_export_node_code)
-    bpy.utils.unregister_class(NODECODE_OT_material_import_node_code)
-    bpy.types.NODE_MT_context_menu.remove(
-        nodecode_material_menu_func
-    )  # Remove from shader editor right-click menu
-    bpy.types.TEXT_MT_text.remove(
-        nodecode_text_editor_menu_func
-    )  # Remove from text editor right-click menu
+    for cls in reversed(classes):  # Unregister in reverse order of registration
+        bpy.utils.unregister_class(cls)
+
+    bpy.types.NODE_MT_context_menu.remove(nodecode_material_menu_func)
+    bpy.types.TEXT_MT_context_menu.remove(nodecode_text_editor_menu_func)

@@ -90,9 +90,7 @@ def convert_to_python(node_system: NodeSystem) -> str:
     # forward references
     for node in node_system.get_nodes_topologically():
         # Generate the constructor for the node
-        constructor = (
-            f"{indent}{pythonify(node.name)} = {pythonify(node.type)}(\n{indent * 2}"
-        )
+        constructor = f"{indent}{pythonify(node.name)} = {pythonify(node.node_type)}(\n{indent * 2}"
 
         # Add input sockets as arguments
         inputs = []
