@@ -61,7 +61,7 @@ class NODECODE_OT_export_node_code(bpy.types.Operator):
 
 
 # Dialog operator for importing Node Code
-class NODECODE_OT_import_node_code(Operator):
+class NODECODE_OT_material_import_node_code(Operator):
     bl_idname = "nodecode.import_node_code"
     bl_label = "Import Node Code"
     bl_description = "Open a text editor where Node Code can be pasted for import"
@@ -78,27 +78,67 @@ class NODECODE_OT_import_node_code(Operator):
         return {"FINISHED"}
 
 
-def nodecode_menu_func(self, context):
+class NODECODE_OT_text_editor_import_node_code(Operator):
+    bl_idname = "nodecode.text_editor_import_node_code"
+    bl_label = "Import Node Code"
+    bl_description = "Import Node Code from the text editor"
+
+    def execute(self, context):
+        # Get the active text editor
+        text_editor = get_text_editor(context.screen)
+
+        # Get the text block
+        text_block = text_editor.text
+        assert text_block is not None, "No text block found in the text editor"
+
+        # Here you would implement the logic to import the node code from the text block
+        # For now, we just print the content to the console
+        print("Node Code to Import:")
+        print(text_block.as_string())
+
+        return {"FINISHED"}
+
+
+def nodecode_material_menu_func(self, context):
     self.layout.separator()  # Add a divider
     self.layout.operator(
         NODECODE_OT_export_node_code.bl_idname, text="Export Node Code..."
     )
     self.layout.operator_context = "INVOKE_DEFAULT"
     self.layout.operator(
-        NODECODE_OT_import_node_code.bl_idname, text="Import Node Code..."
+        NODECODE_OT_material_import_node_code.bl_idname, text="Import Node Code..."
+    )
+
+
+def nodecode_text_editor_menu_func(self, context):
+    self.layout.separator()  # Add a divider
+    self.layout.operator_context = "INVOKE_DEFAULT"
+    self.layout.operator(
+        NODECODE_OT_text_editor_import_node_code.bl_idname, text="Import Node Code"
     )
 
 
 # Register and unregister functions
 def register():
     bpy.utils.register_class(NODECODE_OT_export_node_code)
-    bpy.utils.register_class(NODECODE_OT_import_node_code)
-    bpy.types.NODE_MT_context_menu.append(nodecode_menu_func)  # Add to right-click menu
+    bpy.utils.register_class(NODECODE_OT_material_import_node_code)
+    bpy.utils.register_class(
+        NODECODE_OT_text_editor_import_node_code
+    )  # Ensure this class is registered
+    bpy.types.NODE_MT_context_menu.append(
+        nodecode_material_menu_func
+    )  # Add to shader editor right-click menu
+    bpy.types.TEXT_MT_context_menu.append(
+        nodecode_text_editor_menu_func
+    )  # Add to text editor right-click menu
 
 
 def unregister():
     bpy.utils.unregister_class(NODECODE_OT_export_node_code)
-    bpy.utils.unregister_class(NODECODE_OT_import_node_code)
+    bpy.utils.unregister_class(NODECODE_OT_material_import_node_code)
     bpy.types.NODE_MT_context_menu.remove(
-        nodecode_menu_func
-    )  # Remove from right-click menu
+        nodecode_material_menu_func
+    )  # Remove from shader editor right-click menu
+    bpy.types.TEXT_MT_text.remove(
+        nodecode_text_editor_menu_func
+    )  # Remove from text editor right-click menu
