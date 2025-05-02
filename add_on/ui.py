@@ -3,7 +3,9 @@ from bpy.types import Operator, SpaceTextEditor, Screen
 import textwrap
 
 from .to_python import convert_to_python
+from .from_python import convert_from_python
 from .blender_io import convert_from_blender
+from .blender_io import create_blender_material
 
 
 # Updated get_nodecode_script to accept a node_tree parameter
@@ -48,14 +50,14 @@ class NODECODE_OT_export_node_code(bpy.types.Operator):
         )
 
         # Create a new text block with a script based on the current node tree
-        text_data = bpy.data.texts.new("Node_Code_Hello_World.py")
-        text_data.write(get_nodecode_script(node_tree))
+        text = bpy.data.texts.new("Node_Code_Hello_World.py")
+        text.write(get_nodecode_script(node_tree))
 
         # Without this the editor will show the end of the text, and sometimes
         # not even that.
-        text_data.cursor_set(line=0, character=0)
+        text.cursor_set(line=0, character=0)
 
-        get_text_editor(context.screen).text = text_data
+        get_text_editor(context.screen).text = text
 
         return {"FINISHED"}
 
@@ -73,6 +75,11 @@ class NODECODE_OT_material_import_node_code(Operator):
         # Right-click and choose "Import Node Code" to import the code after pasting it here.
         """).lstrip()
         )
+
+        # Without this the editor will show the end of the text, and sometimes
+        # not even that.
+        text.cursor_set(line=0, character=0)
+
         get_text_editor(context.screen).text = text
 
         return {"FINISHED"}
@@ -92,18 +99,15 @@ class NODECODE_OT_text_editor_import_node_code(Operator):
         assert text_block is not None, "No text block found in the text editor"
 
         # Convert the text block content into a NodeSystem
-        from .from_python import convert_from_python
-        from .blender_io import convert_to_blender
-
         node_system = convert_from_python(text_block.as_string())
 
         # Convert the NodeSystem into a new Blender material
-        material = convert_to_blender(node_system)
+        material = create_blender_material(node_system)
 
-        # Update the shader editor to show the new material
-        for area in context.screen.areas:
-            if area.type == "NODE_EDITOR":
-                area.spaces.active.node_tree = material.node_tree
+        # Set the new material as the active material for the active object.
+        # This also makes the Shader Editor switch to the new material.
+        if context.object:
+            context.object.active_material = material
 
         return {"FINISHED"}
 

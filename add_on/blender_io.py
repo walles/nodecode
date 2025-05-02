@@ -96,7 +96,7 @@ def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
     return node_system
 
 
-def convert_to_blender(node_system: NodeSystem) -> bpy.types.Material:
+def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
     """
     Converts a NodeSystem into a new Blender material.
     """

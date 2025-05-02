@@ -33,6 +33,8 @@ Run `tox` frequently to verify your changes.
 # TODO
 
 - Enable the add-on to generate a node setup from Node Code source
+  - OK: On clicking Import in the text editor, make sure the new material is
+    shown in the shader editor
   - Verify input socket values get populated correctly
   - Try with a multiple nodes setup to verify its layout
 - Try importing into a freshly started Blender instance
