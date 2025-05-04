@@ -61,7 +61,6 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
             )
             node_obj.add_input_socket(input_socket_obj)
 
-        # Fixed redefinition error by renaming the variable
         for output_socket in blender_node.outputs:
             output_socket_obj: OutputSocket = OutputSocket(
                 name=output_socket.name, node=node_obj
