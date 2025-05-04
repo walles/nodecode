@@ -2,7 +2,7 @@ import textwrap
 from types import SimpleNamespace
 import unittest
 
-from add_on.blender_io import convert_from_blender
+from add_on.from_blender import convert_from_blender
 
 
 class TestConvertFromBlender(unittest.TestCase):

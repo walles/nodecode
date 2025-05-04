@@ -4,8 +4,8 @@ import textwrap
 
 from .to_python import convert_to_python
 from .from_python import convert_from_python
-from .blender_io import convert_from_blender
-from .blender_io import create_blender_material
+from .from_blender import convert_from_blender
+from .to_blender import create_blender_material
 
 
 # Updated get_nodecode_script to accept a node_tree parameter
