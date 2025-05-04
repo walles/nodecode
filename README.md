@@ -49,8 +49,13 @@ Run `tox` frequently to verify your changes.
 - Add an instructons comment to the generated code, and a link to the GitHub
   repository
 - Try export or import when the node area is the only open area
+- When importing, make sure any problems are obviously reported to the user.
+  Through in-code highlights or popups. Remove any assert statements from the
+  import code.
 - Document a versioning scheme based on the Blender version
 - Add an example material to this README
+- Don't name the exported editor "Node_Code_Hello_World.py", but rather
+  something based on the material name
 - Publish Python type stubs to PyPI
 - Publish the add-on to Blender Extensions
 - Decorate some random tutorial(s) with Node Code

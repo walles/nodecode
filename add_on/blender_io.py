@@ -116,16 +116,6 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
     # Create a mapping of NodeSystem node names to Blender nodes
     blender_nodes: dict[str, bpy.types.Node] = {}
     for node_system_node in node_system.nodes:
-        if not isinstance(node_system_node, Node):
-            raise ValueError(
-                f"Expected a NodeSystem.Node, got {type(node_system_node)}"
-            )
-
-        if not hasattr(node_system_node, "node_type"):
-            raise ValueError(
-                f"Node {node_system_node.name} is missing the 'node_type' attribute."
-            )
-
         blender_node = node_tree.nodes.new(
             type=f"ShaderNode{node_system_node.node_type}"
         )
@@ -136,6 +126,10 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
         for input_socket in node_system_node.input_sockets:
             if hasattr(blender_node, input_socket.name):
                 setattr(blender_node, input_socket.name, input_socket.value)
+            else:
+                print(
+                    f"Warning: Node Code property {input_socket.name} not found in Blender object {blender_node.bl_idname}"
+                )
 
     # Create links between nodes
     for node_system_node in node_system.nodes:
