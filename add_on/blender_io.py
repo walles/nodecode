@@ -27,10 +27,10 @@ def to_python_datatype(value: Optional[bpy.types.Property]) -> Any:
     )
 
 
-def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
+def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
     node_system = NodeSystem()
 
-    for blender_node in node_tree.nodes:
+    for blender_node in blender_nodes.nodes:
         # Create a Node object
         node_type = blender_node.bl_idname
         node_type = node_type.replace("ShaderNode", "")
@@ -74,7 +74,7 @@ def convert_from_blender(node_tree: bpy.types.NodeTree) -> NodeSystem:
     # Set sources for input sockets
     for node in node_system.nodes:
         for input_socket in node.input_sockets:
-            for link in node_tree.links:
+            for link in blender_nodes.links:
                 assert link.to_socket is not None
                 assert link.to_node is not None
                 assert link.from_socket is not None
