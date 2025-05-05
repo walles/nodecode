@@ -1,5 +1,8 @@
 import unittest
-from add_on.to_python import render_value, render_float
+from add_on.from_python import convert_from_python
+from add_on.to_python import convert_to_python, render_value, render_float
+
+import example
 
 
 class TestToPython(unittest.TestCase):
@@ -7,7 +10,7 @@ class TestToPython(unittest.TestCase):
         self.assertEqual(render_value(None), "None")
 
     def test_render_float(self) -> None:
-        self.assertEqual(render_float(0.0), "0")
+        self.assertEqual(render_float(0.0), "0.0")
         self.assertEqual(render_float(0.00001234), "0.0000123")
         self.assertEqual(render_float(0.00012345), "0.000123")
         self.assertEqual(render_float(0.00123456), "0.00123")
@@ -24,3 +27,11 @@ class TestToPython(unittest.TestCase):
         self.assertEqual(render_float(-0.00001234), "-0.0000123")
         self.assertEqual(render_float(-12.3456789), "-12.35")
         self.assertEqual(render_float(-1234567.89), "-1234567")
+
+    def test_python_roundtrip(self) -> None:
+        original = example.diffuse_material()
+        python_code = convert_to_python(original)
+        recreated = convert_from_python(python_code)
+
+        self.maxDiff = None
+        self.assertMultiLineEqual(str(recreated), str(original), python_code)

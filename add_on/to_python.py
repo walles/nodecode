@@ -5,7 +5,7 @@ from typing import Optional, Any
 
 def render_float(value: float) -> str:
     if value == 0:
-        return "0"
+        return "0.0"
 
     absvalue = abs(value)
     sign = "-" if value < 0 else ""
