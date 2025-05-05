@@ -1,6 +1,13 @@
 from typing import Any, List, Optional
 
 
+# Values in this internal representation are of Python friendly data types /
+# names.
+#
+# When converting to / from Blender, data type and sometimes name conversions
+# are needed.
+
+
 class Node:
     """Represents a single node in the system."""
 

@@ -25,6 +25,14 @@ def to_python_datatype(value: Optional[bpy.types.Property]) -> Any:
     )
 
 
+def to_python_identifier(name: str) -> str:
+    """
+    Converts a Blender property name to a Python identifier.
+    """
+    # Remove any special characters and replace spaces with underscores
+    return name.replace(" ", "_").replace("-", "_").replace(".", "_").replace(",", "_")
+
+
 def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
     node_system = NodeSystem()
 
@@ -32,7 +40,9 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
         # Create a Node object
         node_type = blender_node.bl_idname
         node_type = node_type.replace("ShaderNode", "")
-        node_obj = Node(name=blender_node.name, node_type=node_type)
+        node_obj = Node(
+            name=to_python_identifier(blender_node.name), node_type=node_type
+        )
 
         # Add input sockets for properties
         for prop_id, prop in blender_node.bl_rna.properties.items():
@@ -40,7 +50,7 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
                 continue
 
             input_socket_obj = InputSocket(
-                name=prop_id,
+                name=to_python_identifier(prop_id),
                 node=node_obj,
                 value=to_python_datatype(getattr(blender_node, prop_id, None)),
                 source=None,
@@ -50,7 +60,7 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
         # Add input sockets for node inputs
         for blender_input_socket in blender_node.inputs:
             input_socket_obj = InputSocket(
-                name=blender_input_socket.name,
+                name=to_python_identifier(blender_input_socket.name),
                 node=node_obj,
                 value=to_python_datatype(blender_input_socket.default_value)
                 if hasattr(blender_input_socket, "default_value")
@@ -61,7 +71,7 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
 
         for output_socket in blender_node.outputs:
             output_socket_obj: OutputSocket = OutputSocket(
-                name=output_socket.name, node=node_obj
+                name=to_python_identifier(output_socket.name), node=node_obj
             )
             node_obj.add_output_socket(output_socket_obj)
 
@@ -77,16 +87,18 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
                 assert link.from_socket is not None
                 assert link.from_node is not None
                 if (
-                    link.to_socket.name == input_socket.name
-                    and link.to_node.name == node.name
+                    to_python_identifier(link.to_socket.name) == input_socket.name
+                    and to_python_identifier(link.to_node.name) == node.name
                 ):
                     source_node = next(
-                        n for n in node_system.nodes if n.name == link.from_node.name
+                        n
+                        for n in node_system.nodes
+                        if n.name == to_python_identifier(link.from_node.name)
                     )
                     source_socket = next(
                         s
                         for s in source_node.output_sockets
-                        if s.name == link.from_socket.name
+                        if s.name == to_python_identifier(link.from_socket.name)
                     )
                     input_socket.source = source_socket
 

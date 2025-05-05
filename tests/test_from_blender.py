@@ -1,14 +1,14 @@
-import textwrap
 from types import SimpleNamespace
 import unittest
 
+import example
 from add_on.from_blender import convert_from_blender
 
 
 class TestConvertFromBlender(unittest.TestCase):
     def test_convert_from_blender(self) -> None:
         diffuse_bsdf = SimpleNamespace(
-            name="Diffuse_BSDF",
+            name="Diffuse BSDF",
             type="ShaderNodeBsdfDiffuse",
             bl_idname="ShaderNodeBsdfDiffuse",
             bl_rna=SimpleNamespace(properties=SimpleNamespace(items=lambda: [])),
@@ -38,7 +38,7 @@ class TestConvertFromBlender(unittest.TestCase):
         )
 
         material_output = SimpleNamespace(
-            name="Material_Output",
+            name="Material Output",
             type="ShaderNodeOutputMaterial",
             bl_idname="ShaderNodeOutputMaterial",
             bl_rna=SimpleNamespace(properties=SimpleNamespace(items=lambda: [])),
@@ -88,28 +88,7 @@ class TestConvertFromBlender(unittest.TestCase):
 
         node_tree = MockNodeTree()
         actual = convert_from_blender(node_tree)  # type: ignore
-        expected = textwrap.dedent(
-            """
-            NodeSystem:
-              Node: Diffuse_BSDF (Type: BsdfDiffuse)
-                Input Sockets:
-                  - Color (Value: (0.8, 0.8, 0.8, 1.0))
-                  - Roughness (Value: 0.0)
-                  - Normal (Value: (0.0, 0.0, 0.0))
-                  - Weight (Value: 0.0)
-                Output Sockets:
-                  - BSDF
-              Node: Material_Output (Type: OutputMaterial)
-                Input Sockets:
-                  - is_active_output (Value: True)
-                  - target (Value: ALL)
-                  - Surface (Source: Diffuse_BSDF.BSDF)
-                  - Volume (Value: None)
-                  - Displacement (Value: (0.0, 0.0, 0.0))
-                  - Thickness (Value: 0.0)
-                Output Sockets:
-            """
-        ).strip()
+        expected = example.diffuse_material()
 
         self.maxDiff = None
         self.assertMultiLineEqual(str(actual), str(expected))
