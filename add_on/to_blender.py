@@ -30,13 +30,14 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
         blender_node.name = node_system_node.name
         blender_nodes[node_system_node.name] = blender_node
 
-        # Set input properties
+        # Set input properties with type checking
         for input_socket in node_system_node.input_sockets:
-            if hasattr(blender_node, input_socket.name):
-                setattr(blender_node, input_socket.name, input_socket.value)
+            blender_input = blender_node.inputs.get(input_socket.name)
+            if blender_input and hasattr(blender_input, "default_value"):
+                blender_input.default_value = input_socket.value
             else:
                 print(
-                    f"Warning: Node Code property {input_socket.name} not found in Blender object {blender_node.bl_idname}"
+                    f"Warning: Node Code property {input_socket.name}={input_socket.value} not found or not settable in Blender object {blender_node.bl_idname}"
                 )
 
     # Create links between nodes
