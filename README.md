@@ -36,7 +36,8 @@ Run `tox` frequently to verify your changes.
   - OK: On clicking Import in the text editor, make sure the new material is
     shown in the shader editor
   - OK: Verify input socket values get populated correctly
-  - Verify node properties get populated correctly
+  - OKish: Verify node properties get populated correctly
+    - Some are, some are not. Look for `not found or not settable` in the output
   - Try with a multiple nodes setup to verify its layout
 - Try importing into a freshly started Blender instance
 - Test roundtripping the default material node setup
@@ -49,6 +50,7 @@ Run `tox` frequently to verify your changes.
   - Write them to Blender
 - Add an instructons comment to the generated code, and a link to the GitHub
   repository
+- Verify no warnings are printed to the console on imports or exports
 - Try export or import when the node area is the only open area
 - When importing, make sure any problems are obviously reported to the user.
   Through in-code highlights or popups. Remove any assert statements from the
