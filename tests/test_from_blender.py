@@ -2,7 +2,8 @@ from types import SimpleNamespace
 import unittest
 
 import example
-from add_on.from_blender import convert_from_blender
+from add_on.from_blender import convert_from_blender, create_node_from_blender_node
+from add_on.node_system import Node
 
 
 class TestConvertFromBlender(unittest.TestCase):
@@ -92,3 +93,27 @@ class TestConvertFromBlender(unittest.TestCase):
 
         self.maxDiff = None
         self.assertMultiLineEqual(str(actual), str(expected))
+
+
+class TestCreateNodeFromBlenderNode(unittest.TestCase):
+    def test_basic_node(self):
+        # Minimal mock Blender node using SimpleNamespace for clarity
+        mock_blender_node = SimpleNamespace(
+            name="Test Node",
+            bl_idname="ShaderNodeTest",
+            bl_rna=SimpleNamespace(properties=SimpleNamespace(items=lambda: [])),
+            inputs=[SimpleNamespace(name="InputA", default_value=1.0)],
+            outputs=[SimpleNamespace(name="OutputA")],
+        )
+        # Patch items() to return empty list for properties
+        mock_blender_node.bl_rna.properties.items = lambda: []
+
+        node = create_node_from_blender_node(mock_blender_node)  # type: ignore
+        self.assertIsInstance(node, Node)
+        self.assertEqual(node.name, "Test_Node")
+        self.assertEqual(node.node_type, "Test")
+        self.assertEqual(len(node.input_sockets), 1)
+        self.assertEqual(node.input_sockets[0].name, "InputA")
+        self.assertEqual(node.input_sockets[0].value, 1.0)
+        self.assertEqual(len(node.output_sockets), 1)
+        self.assertEqual(node.output_sockets[0].name, "OutputA")
