@@ -38,7 +38,9 @@ Run `tox` frequently to verify your changes.
   - OK: Verify input socket values get populated correctly
   - OKish: Verify node properties get populated correctly
     - Some are, some are not. Look for `not found or not settable` in the output
-  - Try with a multiple nodes setup to verify its layout
+  - OK: Try with a multiple nodes setup to verify its layout
+  - Try roundtripping a material with a Mix Shader node. That node has two
+    shader inputs that we need to deal with.
 - Try importing into a freshly started Blender instance
 - Test roundtripping the default material node setup
 - Test roundtripping a node setup with a Color Ramp node
@@ -48,6 +50,7 @@ Run `tox` frequently to verify your changes.
   - Write them to Python
   - Read them from Python
   - Write them to Blender
+- Make sure we handle reroute nodes
 - Add an instructons comment to the generated code, and a link to the GitHub
   repository
 - Verify no warnings are printed to the console on imports or exports

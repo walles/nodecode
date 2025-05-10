@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import defaultdict
 
 import bpy
 from .node_system import NodeSystem, Node, InputSocket, OutputSocket
@@ -71,9 +72,31 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
             )
             node_obj.add_output_socket(output_socket_obj)
 
+    def deduplicate_input_socket_names(node_obj: Node):
+        """
+        Deduplicates input socket names by appending a number if necessary.
+        """
+        name_counts: defaultdict[str, int] = defaultdict(int)
+        for input_socket in node_obj.input_sockets:
+            name_counts[input_socket.name] += 1
+
+        needs_deduplication = set()
+        for input_socket in node_obj.input_sockets:
+            if name_counts[input_socket.name] > 1:
+                needs_deduplication.add(input_socket.name)
+
+        for input_socket in reversed(node_obj.input_sockets):
+            if input_socket.name not in needs_deduplication:
+                continue
+
+            original_name = input_socket.name
+            input_socket.name = f"{original_name}_{name_counts[original_name]}"
+            name_counts[original_name] -= 1
+
     add_property_input_sockets()
     add_node_input_sockets()
     add_output_sockets()
+    deduplicate_input_socket_names(node_obj)
     return node_obj
 
 

@@ -117,3 +117,29 @@ class TestCreateNodeFromBlenderNode(unittest.TestCase):
         self.assertEqual(node.input_sockets[0].value, 1.0)
         self.assertEqual(len(node.output_sockets), 1)
         self.assertEqual(node.output_sockets[0].name, "OutputA")
+
+    def test_mix_shader_duplicate_input_names(self):
+        # Mock Blender Mix Shader node with two 'Shader' inputs
+        mock_blender_node = SimpleNamespace(
+            name="Mix Shader",
+            bl_idname="ShaderNodeMixShader",
+            bl_rna=SimpleNamespace(properties=SimpleNamespace(items=lambda: [])),
+            inputs=[
+                SimpleNamespace(name="Fac", default_value=0.5),
+                SimpleNamespace(name="Shader", default_value=None),
+                SimpleNamespace(name="Shader", default_value=None),
+            ],
+            outputs=[SimpleNamespace(name="Shader")],
+        )
+        mock_blender_node.bl_rna.properties.items = lambda: []
+
+        node = create_node_from_blender_node(mock_blender_node)  # type: ignore
+        self.assertIsInstance(node, Node)
+        self.assertEqual(node.name, "Mix_Shader")
+        self.assertEqual(node.node_type, "MixShader")
+        self.assertEqual(len(node.input_sockets), 3)
+        self.assertEqual(node.input_sockets[0].name, "Fac")
+        self.assertEqual(node.input_sockets[1].name, "Shader_1")
+        self.assertEqual(node.input_sockets[2].name, "Shader_2")
+        self.assertEqual(len(node.output_sockets), 1)
+        self.assertEqual(node.output_sockets[0].name, "Shader")
