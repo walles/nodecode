@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import bpy
-from .node_system import NodeSystem, Node, InputSocket
+from .node_system import NodeSystem, Node
 
 
 def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
@@ -95,21 +95,51 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
     return material
 
 
-def apply_input_socket_to_blender_node(
-    blender_node: bpy.types.Node, input_socket: InputSocket
-) -> None:
+def apply_input_socket_to_blender_node(blender_node, input_socket) -> None:
     """
     Applies an InputSocket to a Blender node, setting the appropriate property or input value.
     """
+    import re
+
+    m = re.match(r"(.+?)_(\d+)$", input_socket.name)
+    if m:
+        base_name, idx = m.group(1), int(m.group(2)) - 1
+        blender_inputs = blender_node.inputs.get(base_name)
+        if not isinstance(blender_inputs, list):
+            print(
+                f"Warning: Blender node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a list of inputs '{base_name}'."
+            )
+            return
+
+        if idx >= len(blender_inputs):
+            print(
+                f"Warning: Blender node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' input list '{base_name}' does not have a valid index {idx} (list length: {len(blender_inputs)})."
+            )
+            return
+
+        blender_input = blender_inputs[idx]
+        if not hasattr(blender_input, "default_value"):
+            print(
+                f"Warning: Blender input '{base_name}[{idx}]' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
+            )
+            return
+
+        blender_input.default_value = input_socket.value
+        return
+
     blender_input = blender_node.inputs.get(input_socket.name)
-    if blender_input and hasattr(blender_input, "default_value"):
-        # Blender node input socket
+    if blender_input:
+        if not hasattr(blender_input, "default_value"):
+            print(
+                f"Warning: Blender input '{input_socket.name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
+            )
+            return
         blender_input.default_value = input_socket.value
         return
 
     if not hasattr(blender_node, input_socket.name):
         print(
-            f"Warning: Blender object {blender_node.bl_idname} has neither input socket nor property matching Node Code input {input_socket.name}={input_socket.value}"
+            f"Warning: Blender object {getattr(blender_node, 'bl_idname', type(blender_node).__name__)} has neither input socket nor property matching Node Code input {input_socket.name}={input_socket.value}"
         )
         return
 
@@ -119,5 +149,5 @@ def apply_input_socket_to_blender_node(
         return
     except AttributeError:
         print(
-            f"Warning: Failed to set Blender object {blender_node.bl_idname} property {input_socket.name}={input_socket.value}."
+            f"Warning: Failed to set Blender object {getattr(blender_node, 'bl_idname', type(blender_node).__name__)} property {input_socket.name}={input_socket.value}."
         )

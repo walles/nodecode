@@ -48,6 +48,28 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         # Should not raise, just print a warning
         apply_input_socket_to_blender_node(mock_node, input_socket)  # type: ignore
 
+    def test_set_duplicate_input_socket_values(self):
+        # Mock Blender node with two inputs of the same base name (as a list)
+        blender_input_1 = SimpleNamespace(name="Shader", default_value=None)
+        blender_input_2 = SimpleNamespace(name="Shader", default_value=None)
+        # Simulate Blender's node.inputs as a dict with a list for duplicate names
+        blender_node = SimpleNamespace(
+            inputs={"Shader": [blender_input_1, blender_input_2]},
+            bl_idname="ShaderNodeMixShader",
+        )
+        dummy_node = Node("Dummy", "DummyType")
+        input_socket_1 = InputSocket(
+            name="Shader_1", node=dummy_node, value="A", source=None
+        )
+        input_socket_2 = InputSocket(
+            name="Shader_2", node=dummy_node, value="B", source=None
+        )
+        # Call the actual function under test
+        apply_input_socket_to_blender_node(blender_node, input_socket_1)  # type: ignore
+        apply_input_socket_to_blender_node(blender_node, input_socket_2)  # type: ignore
+        self.assertEqual(blender_input_1.default_value, "A")
+        self.assertEqual(blender_input_2.default_value, "B")
+
 
 if __name__ == "__main__":
     unittest.main()
