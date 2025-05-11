@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import bpy
-from .node_system import NodeSystem, Node
+from .node_system import NodeSystem, Node, InputSocket
 
 
 def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
@@ -32,20 +32,7 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
 
         # Set input sockets and properties with type checking
         for input_socket in node_system_node.input_sockets:
-            blender_input = blender_node.inputs.get(input_socket.name)
-            if blender_input and hasattr(blender_input, "default_value"):
-                blender_input.default_value = input_socket.value
-            elif hasattr(blender_node, input_socket.name):
-                try:
-                    setattr(blender_node, input_socket.name, input_socket.value)
-                except AttributeError:
-                    print(
-                        f"Warning: Node Code property {input_socket.name}={input_socket.value} not found or not settable in Blender object {blender_node.bl_idname}"
-                    )
-            else:
-                print(
-                    f"Warning: Node Code property {input_socket.name}={input_socket.value} not found or not settable in Blender object {blender_node.bl_idname}"
-                )
+            apply_input_socket_to_blender_node(blender_node, input_socket)
 
     # Create links between nodes
     for node_system_node in node_system.nodes:
@@ -106,3 +93,31 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
             )
 
     return material
+
+
+def apply_input_socket_to_blender_node(
+    blender_node: bpy.types.Node, input_socket: InputSocket
+) -> None:
+    """
+    Applies an InputSocket to a Blender node, setting the appropriate property or input value.
+    """
+    blender_input = blender_node.inputs.get(input_socket.name)
+    if blender_input and hasattr(blender_input, "default_value"):
+        # Blender node input socket
+        blender_input.default_value = input_socket.value
+        return
+
+    if not hasattr(blender_node, input_socket.name):
+        print(
+            f"Warning: Blender object {blender_node.bl_idname} has neither input socket nor property matching Node Code input {input_socket.name}={input_socket.value}"
+        )
+        return
+
+    try:
+        # Blender node property
+        setattr(blender_node, input_socket.name, input_socket.value)
+        return
+    except AttributeError:
+        print(
+            f"Warning: Failed to set Blender object {blender_node.bl_idname} property {input_socket.name}={input_socket.value}."
+        )
