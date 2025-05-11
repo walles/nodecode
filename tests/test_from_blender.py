@@ -180,3 +180,52 @@ class TestFindLinkSockets(unittest.TestCase):
         input_socket, output_socket = find_link_sockets(node_system, blender_link)
         self.assertIs(input_socket, target_input)
         self.assertIs(output_socket, source_output)
+
+    def test_find_link_sockets_duplicate_shader_inputs(self):
+        # Create target node with two input sockets named Shader_1 and Shader_2
+        target_node = Node(name="Target_Node", node_type="TestType")
+        shader_1 = InputSocket(
+            name="Shader_1", node=target_node, value=None, source=None
+        )
+        shader_2 = InputSocket(
+            name="Shader_2", node=target_node, value=None, source=None
+        )
+        target_node.add_input_socket(shader_1)
+        target_node.add_input_socket(shader_2)
+
+        # Create source nodes for each shader input
+        source_node_1 = Node(name="Source_Node_1", node_type="TestType")
+        source_output_1 = OutputSocket(name="Out", node=source_node_1)
+        source_node_1.add_output_socket(source_output_1)
+
+        source_node_2 = Node(name="Source_Node_2", node_type="TestType")
+        source_output_2 = OutputSocket(name="Out", node=source_node_2)
+        source_node_2.add_output_socket(source_output_2)
+
+        # Create node system
+        node_system = NodeSystem()
+        node_system.add_node(target_node)
+        node_system.add_node(source_node_1)
+        node_system.add_node(source_node_2)
+
+        # Mock blender links with both to_socket names as 'Shader'
+        blender_link_1 = SimpleNamespace(
+            from_node=SimpleNamespace(name="Source Node 1"),
+            from_socket=SimpleNamespace(name="Out"),
+            to_node=SimpleNamespace(name="Target Node"),
+            to_socket=SimpleNamespace(name="Shader"),
+        )
+        blender_link_2 = SimpleNamespace(
+            from_node=SimpleNamespace(name="Source Node 2"),
+            from_socket=SimpleNamespace(name="Out"),
+            to_node=SimpleNamespace(name="Target Node"),
+            to_socket=SimpleNamespace(name="Shader"),
+        )
+
+        # The first call should resolve to Shader_1, the second to Shader_2
+        input_socket_1, output_socket_1 = find_link_sockets(node_system, blender_link_1)
+        input_socket_2, output_socket_2 = find_link_sockets(node_system, blender_link_2)
+        self.assertIs(input_socket_1, shader_1)
+        self.assertIs(output_socket_1, source_output_1)
+        self.assertIs(input_socket_2, shader_2)
+        self.assertIs(output_socket_2, source_output_2)
