@@ -26,6 +26,15 @@ def get_node_levels(node_system):
     return levels
 
 
+def compute_node_height(node, base_height=60, socket_height=24):
+    """
+    Compute the height of a node based on its number of input/output sockets.
+    """
+    num_inputs = len(getattr(node, "input_sockets", []))
+    num_outputs = len(getattr(node, "output_sockets", []))
+    return base_height + socket_height * max(num_inputs, num_outputs)
+
+
 def layout_blender_nodes(node_system, blender_nodes):
     """
     Arranges Blender nodes in a left-to-right flow based on their level in the graph.
@@ -38,7 +47,10 @@ def layout_blender_nodes(node_system, blender_nodes):
     for node_name, level in levels.items():
         level_nodes.setdefault(level, []).append(node_name)
     # Assign Y positions: nodes at the same level are stacked vertically, X by level
-    y_offset = 200
+
+    base_height = 60
+    socket_height = 24
+    vertical_gap = 30  # Gap between nodes (bottom of A to top of B)
 
     def get_sort_key(node_name):
         # For each node in the system, check if this node is an input to another node at a higher level
@@ -51,9 +63,18 @@ def layout_blender_nodes(node_system, blender_nodes):
     for level, nodes in level_nodes.items():
         # Custom sort: nodes that are inputs to downstream nodes are ordered by the socket index
         sorted_nodes = sorted(nodes, key=get_sort_key)
-        for i, node_name in enumerate(sorted_nodes):
+        y = 0
+        for node_name in sorted_nodes:
             blender_node = blender_nodes[node_name]
             blender_node.location = (
                 x_offset * level,
-                -y_offset * i,  # Stack nodes at the same level vertically
+                -y,  # Y position is negative to stack downward
             )
+
+            node = next((n for n in node_system.nodes if n.name == node_name), None)
+            node_height = (
+                compute_node_height(node, base_height, socket_height)
+                if node
+                else base_height
+            )
+            y += node_height + vertical_gap
