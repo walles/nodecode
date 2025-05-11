@@ -39,8 +39,19 @@ def layout_blender_nodes(node_system, blender_nodes):
         level_nodes.setdefault(level, []).append(node_name)
     # Assign Y positions: nodes at the same level are stacked vertically, X by level
     y_offset = 200
+
+    def get_sort_key(node_name):
+        # For each node in the system, check if this node is an input to another node at a higher level
+        for node in node_system.nodes:
+            for i, inp in enumerate(getattr(node, "input_sockets", [])):
+                if inp.source and inp.source.node.name == node_name:
+                    return i  # Sort by input socket index
+        return 999  # Nodes not connected as input go last
+
     for level, nodes in level_nodes.items():
-        for i, node_name in enumerate(sorted(nodes)):
+        # Custom sort: nodes that are inputs to downstream nodes are ordered by the socket index
+        sorted_nodes = sorted(nodes, key=get_sort_key)
+        for i, node_name in enumerate(sorted_nodes):
             blender_node = blender_nodes[node_name]
             blender_node.location = (
                 x_offset * level,
