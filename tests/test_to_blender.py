@@ -49,12 +49,12 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         apply_input_socket_to_blender_node(mock_node, input_socket)  # type: ignore
 
     def test_set_duplicate_input_socket_values(self):
-        # Mock Blender node with two inputs of the same base name (as a list)
+        # Mock Blender node with two inputs of the same base name, using Blender's naming convention
         blender_input_1 = SimpleNamespace(name="Shader", default_value=None)
-        blender_input_2 = SimpleNamespace(name="Shader", default_value=None)
-        # Simulate Blender's node.inputs as a dict with a list for duplicate names
+        blender_input_2 = SimpleNamespace(name="Shader_001", default_value=None)
+        # Simulate Blender's node.inputs as a dict with mapped names
         blender_node = SimpleNamespace(
-            inputs={"Shader": [blender_input_1, blender_input_2]},
+            inputs={"Shader": blender_input_1, "Shader_001": blender_input_2},
             bl_idname="ShaderNodeMixShader",
         )
         dummy_node = Node("Dummy", "DummyType")

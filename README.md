@@ -32,15 +32,6 @@ Run `tox` frequently to verify your changes.
 
 # TODO
 
-- Enable the add-on to generate a node setup from Node Code source
-  - OK: On clicking Import in the text editor, make sure the new material is
-    shown in the shader editor
-  - OK: Verify input socket values get populated correctly
-  - OKish: Verify node properties get populated correctly
-    - Some are, some are not. Look for `not found or not settable` in the output
-  - OK: Try with a multiple nodes setup to verify its layout
-  - Try roundtripping a material with a Mix Shader node. That node has two
-    shader inputs that we need to deal with.
 - Try importing into a freshly started Blender instance
 - Test roundtripping the default material node setup
 - Test roundtripping a node setup with a Color Ramp node
@@ -51,7 +42,7 @@ Run `tox` frequently to verify your changes.
   - Read them from Python
   - Write them to Blender
 - Make sure we handle reroute nodes
-- Add an instructons comment to the generated code, and a link to the GitHub
+- Add an instructions comment to the generated code, and a link to the GitHub
   repository
 - Verify no warnings are printed to the console on imports or exports
 - Try export or import when the node area is the only open area
@@ -94,3 +85,4 @@ Run `tox` frequently to verify your changes.
   - Make main return the right value
 - Implement converting Node Code to an internal node system object
 - Right click the node area for Node Code access
+- Enable the add-on to generate a node setup from Node Code source

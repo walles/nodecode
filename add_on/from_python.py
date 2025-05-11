@@ -4,6 +4,9 @@ from typing import Optional, Dict, Any
 
 
 def convert_from_python(nodecode_py: str) -> NodeSystem:
+    # FIXME: Check for multiple main() functions
+    # FIXME: Check for not having an output node
+
     tree = ast.parse(nodecode_py)
 
     return_me = NodeSystem()
@@ -59,16 +62,6 @@ def convert_from_python(nodecode_py: str) -> NodeSystem:
             node.add_input_socket(
                 InputSocket(arg_name, node, parse_input_value(keyword.value), None)
             )
-
-        # - Populate the node's input sockets from the constructor parameters
-        # - For any parameter that is a function call:
-        #   - Find the corresponding node in the node system
-        #   - Create an output socket for the function call if there isn't one already
-        #   - Connect the input socket of the current node to the output socket of the
-        #     function call node
-
-        # FIXME: After all assignments, there should be a return statement. This can
-        # be ignored for now.
 
     return return_me
 

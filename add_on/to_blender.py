@@ -4,6 +4,23 @@ import bpy
 from .node_system import NodeSystem, Node
 
 
+def get_blender_input_name(input_socket_name: str) -> str:
+    """
+    Maps names like 'Shader_1', 'Shader_2' to Blender's 'Shader', 'Shader_001', etc.
+    """
+    import re
+
+    m = re.match(r"(.+?)_(\d+)$", input_socket_name)
+    if not m:
+        return input_socket_name
+
+    base_name, idx = m.group(1), int(m.group(2))
+    if idx == 1:
+        return base_name
+
+    return f"{base_name}_{idx - 1:03d}"
+
+
 def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
     """
     Converts a NodeSystem into a new Blender material.
@@ -44,7 +61,8 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
                 from_node = blender_nodes[input_socket.source.node.name]
                 from_socket = from_node.outputs[input_socket.source.name]
                 to_node = blender_nodes[node_system_node.name]
-                to_socket = to_node.inputs[input_socket.name]
+                blender_input_name = get_blender_input_name(input_socket.name)
+                to_socket = to_node.inputs[blender_input_name]
                 node_tree.links.new(from_socket, to_socket)
 
     # Arrange nodes in a left-to-right flow based on their level in the graph
@@ -98,32 +116,16 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
 def apply_input_socket_to_blender_node(blender_node, input_socket) -> None:
     """
     Applies an InputSocket to a Blender node, setting the appropriate property or input value.
+    Dynamically maps names like 'Shader_1', 'Shader_2' to Blender's 'Shader', 'Shader_001', etc.
     """
-    import re
-
-    m = re.match(r"(.+?)_(\d+)$", input_socket.name)
-    if m:
-        base_name, idx = m.group(1), int(m.group(2)) - 1
-        blender_inputs = blender_node.inputs.get(base_name)
-        if not isinstance(blender_inputs, list):
-            print(
-                f"Warning: Blender node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a list of inputs '{base_name}'."
-            )
-            return
-
-        if idx >= len(blender_inputs):
-            print(
-                f"Warning: Blender node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' input list '{base_name}' does not have a valid index {idx} (list length: {len(blender_inputs)})."
-            )
-            return
-
-        blender_input = blender_inputs[idx]
+    blender_input_name = get_blender_input_name(input_socket.name)
+    blender_input = blender_node.inputs.get(blender_input_name)
+    if blender_input:
         if not hasattr(blender_input, "default_value"):
             print(
-                f"Warning: Blender input '{base_name}[{idx}]' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
+                f"Warning: Blender input '{blender_input_name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
             )
             return
-
         blender_input.default_value = input_socket.value
         return
 
