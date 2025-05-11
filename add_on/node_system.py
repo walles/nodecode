@@ -40,6 +40,9 @@ class Node:
                 return socket
         return None
 
+    def __repr__(self) -> str:
+        return f"Node(name={self.name}, type={self.node_type})"
+
 
 class NodeSystem:
     """Represents a system containing multiple nodes."""
@@ -131,3 +134,11 @@ class InputSocket(Socket):
         self.source: Optional[OutputSocket] = (
             source  # Source is an OutputSocket from another node
         )
+
+    def __repr__(self) -> str:
+        source_info = (
+            f" (Source: {self.source.node.name}.{self.source.name})"
+            if self.source
+            else f" (Value: {self.value})"
+        )
+        return f"InputSocket(name={self.name}{source_info})"

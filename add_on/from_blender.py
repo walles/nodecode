@@ -100,6 +100,41 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     return node_obj
 
 
+def find_link_sockets(
+    node_system: NodeSystem, blender_link
+) -> tuple[Optional[InputSocket], Optional[OutputSocket]]:
+    """
+    Given a node system and a blender link, find the corresponding input socket and source output socket.
+    Returns (input_socket, source_socket) or (None, None) if not found.
+    """
+    for node in node_system.nodes:
+        for input_socket in node.input_sockets:
+            if to_python_identifier(blender_link.to_socket.name) != input_socket.name:
+                continue
+            if to_python_identifier(blender_link.to_node.name) != node.name:
+                continue
+            source_node = next(
+                (
+                    n
+                    for n in node_system.nodes
+                    if n.name == to_python_identifier(blender_link.from_node.name)
+                ),
+                None,
+            )
+            if source_node is None:
+                return input_socket, None
+            source_socket = next(
+                (
+                    s
+                    for s in source_node.output_sockets
+                    if s.name == to_python_identifier(blender_link.from_socket.name)
+                ),
+                None,
+            )
+            return input_socket, source_socket
+    return None, None
+
+
 def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
     node_system = NodeSystem()
 
@@ -108,27 +143,19 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
         node_system.add_node(node_obj)
 
     # Set sources for input sockets
-    for node in node_system.nodes:
-        for input_socket in node.input_sockets:
-            for link in blender_nodes.links:
-                assert link.to_socket is not None
-                assert link.to_node is not None
-                assert link.from_socket is not None
-                assert link.from_node is not None
-                if (
-                    to_python_identifier(link.to_socket.name) == input_socket.name
-                    and to_python_identifier(link.to_node.name) == node.name
-                ):
-                    source_node = next(
-                        n
-                        for n in node_system.nodes
-                        if n.name == to_python_identifier(link.from_node.name)
-                    )
-                    source_socket = next(
-                        s
-                        for s in source_node.output_sockets
-                        if s.name == to_python_identifier(link.from_socket.name)
-                    )
-                    input_socket.source = source_socket
+    for blender_link in blender_nodes.links:
+        assert blender_link.to_socket is not None
+        assert blender_link.to_node is not None
+        assert blender_link.from_socket is not None
+        assert blender_link.from_node is not None
+
+        input_socket, source_socket = find_link_sockets(node_system, blender_link)
+        if input_socket is not None and source_socket is not None:
+            input_socket.source = source_socket
+        else:
+            print(
+                f"[WARNING] Could not link: {blender_link.from_node.name}.{blender_link.from_socket.name} -> "
+                f"{blender_link.to_node.name}.{blender_link.to_socket.name}"
+            )
 
     return node_system

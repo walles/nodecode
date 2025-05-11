@@ -2,8 +2,12 @@ from types import SimpleNamespace
 import unittest
 
 import example
-from add_on.from_blender import convert_from_blender, create_node_from_blender_node
-from add_on.node_system import Node
+from add_on.from_blender import (
+    convert_from_blender,
+    create_node_from_blender_node,
+    find_link_sockets,
+)
+from add_on.node_system import Node, NodeSystem, InputSocket, OutputSocket
 
 
 class TestConvertFromBlender(unittest.TestCase):
@@ -143,3 +147,36 @@ class TestCreateNodeFromBlenderNode(unittest.TestCase):
         self.assertEqual(node.input_sockets[2].name, "Shader_2")
         self.assertEqual(len(node.output_sockets), 1)
         self.assertEqual(node.output_sockets[0].name, "Shader")
+
+
+class TestFindLinkSockets(unittest.TestCase):
+    def test_find_link_sockets_happy_case(self):
+        # Create two nodes: source and target
+        source_node = Node(name="Source_Node", node_type="TestType")
+        target_node = Node(name="Target_Node", node_type="TestType")
+
+        # Add output socket to source node
+        source_output = OutputSocket(name="Out", node=source_node)
+        source_node.add_output_socket(source_output)
+
+        # Add input socket to target node
+        target_input = InputSocket(name="In", node=target_node, value=None, source=None)
+        target_node.add_input_socket(target_input)
+
+        # Create node system
+        node_system = NodeSystem()
+        node_system.add_node(source_node)
+        node_system.add_node(target_node)
+
+        # Mock a blender_link with matching names
+        blender_link = SimpleNamespace(
+            from_node=SimpleNamespace(name="Source Node"),
+            from_socket=SimpleNamespace(name="Out"),
+            to_node=SimpleNamespace(name="Target Node"),
+            to_socket=SimpleNamespace(name="In"),
+        )
+
+        # Should resolve to the correct sockets
+        input_socket, output_socket = find_link_sockets(node_system, blender_link)
+        self.assertIs(input_socket, target_input)
+        self.assertIs(output_socket, source_output)
