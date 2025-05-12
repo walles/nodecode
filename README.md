@@ -32,9 +32,12 @@ Run `tox` frequently to verify your changes.
 
 # TODO
 
-- Try importing into a freshly started Blender instance
 - Test roundtripping the default material node setup
 - Test roundtripping a node setup with a Color Ramp node
+- Test node layout with Principled vs Diffuse and check the layout seems to get
+  the node heights about right
+- Regenerated the type stubs and check that the Mix Shader gets inputs named
+  Shader_1 and Shader_2
 - Make extract-blender-types.py extract Color Ramp nodes
 - Make sure we handle node groups
   - Read them from Blender
@@ -53,6 +56,8 @@ Run `tox` frequently to verify your changes.
 - Add an example material to this README
 - Don't name the exported editor "Node_Code_Hello_World.py", but rather
   something based on the material name
+- Try removing all materials and exporting
+- Try removing all objects and importing
 - Publish Python type stubs to PyPI
 - Publish the add-on to Blender Extensions
 - Decorate some random tutorial(s) with Node Code
@@ -86,3 +91,5 @@ Run `tox` frequently to verify your changes.
 - Implement converting Node Code to an internal node system object
 - Right click the node area for Node Code access
 - Enable the add-on to generate a node setup from Node Code source
+- Try importing into a freshly started Blender instance
+- Fix warnings when importing Principled BSDF nodes

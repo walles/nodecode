@@ -9,7 +9,7 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         # Mock Blender node with an input socket
         mock_input = SimpleNamespace(name="TestInput", default_value=None)
         mock_node = SimpleNamespace(
-            inputs={"TestInput": mock_input},
+            inputs=[mock_input],  # Changed from dict to list
             bl_idname="ShaderNodeTest",
         )
         dummy_node = Node("Dummy", "DummyType")
@@ -23,7 +23,7 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         # Mock Blender node with a property, but no input socket
         class MockNode:
             bl_idname = "ShaderNodeTest"
-            inputs = {}
+            inputs = []  # Changed from dict to list
             test_property = 0
 
         mock_node = MockNode()
@@ -38,7 +38,7 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         # Mock Blender node with neither input socket nor property
         class MockNode:
             bl_idname = "ShaderNodeTest"
-            inputs = {}
+            inputs = []  # Changed from dict to list
 
         mock_node = MockNode()
         dummy_node = Node("Dummy", "DummyType")
@@ -52,9 +52,9 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         # Mock Blender node with two inputs of the same base name, using Blender's naming convention
         blender_input_1 = SimpleNamespace(name="Shader", default_value=None)
         blender_input_2 = SimpleNamespace(name="Shader_001", default_value=None)
-        # Simulate Blender's node.inputs as a dict with mapped names
+        # Simulate Blender's node.inputs as a list
         blender_node = SimpleNamespace(
-            inputs={"Shader": blender_input_1, "Shader_001": blender_input_2},
+            inputs=[blender_input_1, blender_input_2],  # Changed from dict to list
             bl_idname="ShaderNodeMixShader",
         )
         dummy_node = Node("Dummy", "DummyType")

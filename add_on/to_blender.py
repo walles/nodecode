@@ -72,32 +72,39 @@ def create_blender_material(node_system: NodeSystem) -> bpy.types.Material:
     return material
 
 
+def normalize_name(name: str) -> str:
+    """
+    Normalize a Blender socket name to Node Code style:
+    - Replace spaces with underscores
+    - Remove trailing/leading whitespace
+    - Keep acronyms (all-uppercase words) as is
+    """
+    # Remove leading/trailing whitespace
+    name = name.strip()
+    # Replace spaces with underscores
+    name = name.replace(" ", "_")
+    return name
+
+
 def apply_input_socket_to_blender_node(blender_node, input_socket) -> None:
     """
     Applies an InputSocket to a Blender node, setting the appropriate property or input value.
-    Dynamically maps names like 'Shader_1', 'Shader_2' to Blender's 'Shader', 'Shader_001', etc.
+    Normalizes Blender socket names to Node Code style for robust mapping.
     """
+    # Use get_blender_input_name to map NodeCode input name to Blender's input name
     blender_input_name = get_blender_input_name(input_socket.name)
-    blender_input = blender_node.inputs.get(blender_input_name)
+    blender_input_map = {normalize_name(inp.name): inp for inp in blender_node.inputs}
+    blender_input = blender_input_map.get(normalize_name(blender_input_name))
     if blender_input:
         if not hasattr(blender_input, "default_value"):
             print(
-                f"Warning: Blender input '{blender_input_name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
+                f"Warning: Blender input '{blender_input.name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
             )
             return
         blender_input.default_value = input_socket.value
         return
 
-    blender_input = blender_node.inputs.get(input_socket.name)
-    if blender_input:
-        if not hasattr(blender_input, "default_value"):
-            print(
-                f"Warning: Blender input '{input_socket.name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
-            )
-            return
-        blender_input.default_value = input_socket.value
-        return
-
+    # Fallback: try property on the node
     if not hasattr(blender_node, input_socket.name):
         print(
             f"Warning: Blender object {getattr(blender_node, 'bl_idname', type(blender_node).__name__)} has neither input socket nor property matching Node Code input {input_socket.name}={input_socket.value}"
