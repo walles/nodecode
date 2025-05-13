@@ -106,22 +106,25 @@ _find_link_sockets_counters: dict[tuple[str, str], int] = {}
 
 def find_link_sockets(
     node_system: NodeSystem, blender_link
-) -> tuple[Optional[InputSocket], Optional[OutputSocket]]:
+) -> tuple[Optional[InputSocket], Optional[OutputSocket], list[str]]:
     """
     Given a node system and a blender link, find the corresponding input socket and source output socket.
     Handles deduplicated input sockets (e.g., Shader_1, Shader_2) for duplicate Blender socket names.
-    Returns (input_socket, source_socket) or (None, None) if not found.
+    Returns (input_socket, source_socket, all_candidate_names) or (None, None, all_candidate_names) if not found.
+    The candidate names list is collected before any filtering, to aid debugging.
+    Each candidate is formatted as 'node_name.socket_name'.
     """
     to_node_name = to_python_identifier(blender_link.to_node.name)
     to_socket_base = to_python_identifier(blender_link.to_socket.name)
     from_node_name = to_python_identifier(blender_link.from_node.name)
     from_socket_name = to_python_identifier(blender_link.from_socket.name)
 
-    # Find the target node
+    # Collect all input socket names from all nodes, with node name, before any filtering
+    all_candidate_names = [f"{node.name}.{s.name}" for node in node_system.nodes for s in node.input_sockets]
+
     for node in node_system.nodes:
         if node.name != to_node_name:
             continue
-        # Gather all input sockets that match the base name or deduplicated name
         matching_sockets = [
             s
             for s in node.input_sockets
@@ -131,8 +134,6 @@ def find_link_sockets(
                 and s.name[len(to_socket_base) + 1 :].isdigit()
             )
         ]
-
-        # Sort so that base comes first, then _1, _2, ...
         def socket_sort_key(s):
             if s.name == to_socket_base:
                 return 0
@@ -140,9 +141,7 @@ def find_link_sockets(
                 return int(s.name[len(to_socket_base) + 1 :])
             except Exception:
                 return 9999
-
         matching_sockets.sort(key=socket_sort_key)
-        # Use a counter to pick the next available deduplicated socket for this node/socket base
         counter_key = (node.name, to_socket_base)
         idx = _find_link_sockets_counters.get(counter_key, 0)
         if idx < len(matching_sockets):
@@ -150,7 +149,6 @@ def find_link_sockets(
             _find_link_sockets_counters[counter_key] = idx + 1
         else:
             input_socket = None
-        # Find the source node and output socket
         source_node = next(
             (n for n in node_system.nodes if n.name == from_node_name), None
         )
@@ -160,8 +158,8 @@ def find_link_sockets(
                 (s for s in source_node.output_sockets if s.name == from_socket_name),
                 None,
             )
-        return input_socket, source_socket
-    return None, None
+        return input_socket, source_socket, all_candidate_names
+    return None, None, all_candidate_names
 
 
 def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
@@ -178,14 +176,14 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
         assert blender_link.from_socket is not None
         assert blender_link.from_node is not None
 
-        input_socket, source_socket = find_link_sockets(node_system, blender_link)
+        input_socket, source_socket, candidates = find_link_sockets(node_system, blender_link)
         if input_socket is None or source_socket is None:
             print(
                 f"[WARNING] Could not link: {blender_link.from_node.name}.{blender_link.from_socket.name} -> "
-                f"{blender_link.to_node.name}.{blender_link.to_socket.name}"
+                f"{blender_link.to_node.name}.{blender_link.to_socket.name}\n"
+                f"Candidates tried and rejected: {candidates}"
             )
             continue
-
         input_socket.source = source_socket
 
     return node_system
