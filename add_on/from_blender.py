@@ -179,12 +179,13 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
         assert blender_link.from_node is not None
 
         input_socket, source_socket = find_link_sockets(node_system, blender_link)
-        if input_socket is not None and source_socket is not None:
-            input_socket.source = source_socket
-        else:
+        if input_socket is None or source_socket is None:
             print(
                 f"[WARNING] Could not link: {blender_link.from_node.name}.{blender_link.from_socket.name} -> "
                 f"{blender_link.to_node.name}.{blender_link.to_socket.name}"
             )
+            continue
+
+        input_socket.source = source_socket
 
     return node_system

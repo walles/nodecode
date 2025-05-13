@@ -32,7 +32,6 @@ Run `tox` frequently to verify your changes.
 
 # TODO
 
-- Test roundtripping the default material node setup
 - Test roundtripping a node setup with a Color Ramp node
 - Test node layout with Principled vs Diffuse and check the layout seems to get
   the node heights about right
@@ -93,3 +92,4 @@ Run `tox` frequently to verify your changes.
 - Enable the add-on to generate a node setup from Node Code source
 - Try importing into a freshly started Blender instance
 - Fix warnings when importing Principled BSDF nodes
+- Test roundtripping the default material node setup
