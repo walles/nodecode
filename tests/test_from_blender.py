@@ -177,7 +177,9 @@ class TestFindLinkSockets(unittest.TestCase):
         )
 
         # Should resolve to the correct sockets
-        input_socket, output_socket = find_link_sockets(node_system, blender_link)
+        input_socket, output_socket, _ = find_link_sockets(
+            node_system, blender_link, {}
+        )
         self.assertIs(input_socket, target_input)
         self.assertIs(output_socket, source_output)
 
@@ -222,9 +224,14 @@ class TestFindLinkSockets(unittest.TestCase):
             to_socket=SimpleNamespace(name="Shader"),
         )
 
+        link_sockets_counters: dict[tuple[str, str], int] = {}
         # The first call should resolve to Shader_1, the second to Shader_2
-        input_socket_1, output_socket_1 = find_link_sockets(node_system, blender_link_1)
-        input_socket_2, output_socket_2 = find_link_sockets(node_system, blender_link_2)
+        input_socket_1, output_socket_1, _ = find_link_sockets(
+            node_system, blender_link_1, link_sockets_counters
+        )
+        input_socket_2, output_socket_2, _ = find_link_sockets(
+            node_system, blender_link_2, link_sockets_counters
+        )
         self.assertIs(input_socket_1, shader_1)
         self.assertIs(output_socket_1, source_output_1)
         self.assertIs(input_socket_2, shader_2)

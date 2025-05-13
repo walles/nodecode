@@ -100,12 +100,8 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     return node_obj
 
 
-# Track how many times each (node, socket base) pair has been linked
-_find_link_sockets_counters: dict[tuple[str, str], int] = {}
-
-
 def find_link_sockets(
-    node_system: NodeSystem, blender_link
+    node_system: NodeSystem, blender_link, link_sockets_counters
 ) -> tuple[Optional[InputSocket], Optional[OutputSocket], list[str]]:
     """
     Given a node system and a blender link, find the corresponding input socket and source output socket.
@@ -120,7 +116,11 @@ def find_link_sockets(
     from_socket_name = to_python_identifier(blender_link.from_socket.name)
 
     # Collect all input socket names from all nodes, with node name, before any filtering
-    all_candidate_names = [f"{node.name}.{s.name}" for node in node_system.nodes for s in node.input_sockets]
+    all_candidate_names = [
+        f"{node.name}.{input_socket.name}"
+        for node in node_system.nodes
+        for input_socket in node.input_sockets
+    ]
 
     for node in node_system.nodes:
         if node.name != to_node_name:
@@ -134,6 +134,7 @@ def find_link_sockets(
                 and s.name[len(to_socket_base) + 1 :].isdigit()
             )
         ]
+
         def socket_sort_key(s):
             if s.name == to_socket_base:
                 return 0
@@ -141,12 +142,13 @@ def find_link_sockets(
                 return int(s.name[len(to_socket_base) + 1 :])
             except Exception:
                 return 9999
+
         matching_sockets.sort(key=socket_sort_key)
         counter_key = (node.name, to_socket_base)
-        idx = _find_link_sockets_counters.get(counter_key, 0)
+        idx = link_sockets_counters.get(counter_key, 0)
         if idx < len(matching_sockets):
             input_socket = matching_sockets[idx]
-            _find_link_sockets_counters[counter_key] = idx + 1
+            link_sockets_counters[counter_key] = idx + 1
         else:
             input_socket = None
         source_node = next(
@@ -164,6 +166,7 @@ def find_link_sockets(
 
 def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
     node_system = NodeSystem()
+    link_sockets_counters: dict[tuple[str, str], int] = {}
 
     for blender_node in blender_nodes.nodes:
         node_obj = create_node_from_blender_node(blender_node)
@@ -176,7 +179,9 @@ def convert_from_blender(blender_nodes: bpy.types.NodeTree) -> NodeSystem:
         assert blender_link.from_socket is not None
         assert blender_link.from_node is not None
 
-        input_socket, source_socket, candidates = find_link_sockets(node_system, blender_link)
+        input_socket, source_socket, candidates = find_link_sockets(
+            node_system, blender_link, link_sockets_counters
+        )
         if input_socket is None or source_socket is None:
             print(
                 f"[WARNING] Could not link: {blender_link.from_node.name}.{blender_link.from_socket.name} -> "
