@@ -97,6 +97,28 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     add_node_input_sockets()
     add_output_sockets()
     deduplicate_input_socket_names(node_obj)
+
+    # Treat color ramp as a synthetic input socket if present
+    if not hasattr(blender_node, "color_ramp"):
+        return node_obj
+
+    ramp = blender_node.color_ramp
+    if not hasattr(ramp, "elements"):
+        return node_obj
+
+    ramp_data = [
+        {"position": float(e.position), "color": tuple(float(c) for c in e.color)}
+        for e in ramp.elements
+    ]
+
+    input_socket_obj = InputSocket(
+        name="ColorRamp",
+        node=node_obj,
+        value=ramp_data,
+        source=None,
+    )
+    node_obj.add_input_socket(input_socket_obj)
+
     return node_obj
 
 

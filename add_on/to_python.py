@@ -45,16 +45,30 @@ def render_value(value: Optional[Any]) -> str:
     """
     if value is None:
         return "None"
+
     if isinstance(value, str):
         return f'"{value}"'
+
     if isinstance(value, bool):
         return "True" if value else "False"
+
     if isinstance(value, int):
         return str(value)
+
     if isinstance(value, float):
         return render_float(value)
+
     if isinstance(value, tuple):
         return f"({', '.join(map(render_value, value))})"
+
+    if isinstance(value, list):
+        # Render lists as Python lists, recursively rendering each element
+        return f"[{', '.join(render_value(v) for v in value)}]"
+
+    if isinstance(value, dict):
+        # Render dicts as Python dicts, recursively rendering keys and values
+        items = (f"{render_value(k)}: {render_value(v)}" for k, v in value.items())
+        return f"{{{', '.join(items)}}}"
 
     raise ValueError(f"Unsupported value type: {type(value)}")
 

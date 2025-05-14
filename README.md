@@ -33,10 +33,12 @@ Run `tox` frequently to verify your changes.
 # TODO
 
 - Test roundtripping a node setup with a Color Ramp node
+  - OK: Make export work
+  - Make import work
 - Test node layout with Principled vs Diffuse and check the layout seems to get
   the node heights about right
-- Regenerated the type stubs and check that the Mix Shader gets inputs named
-  Shader_1 and Shader_2
+- Regenerate the type stubs and check that the Mix Shader gets inputs named
+  Shader_1 and Shader_2 and that the color ramp gets a ColorRamp input
 - Make extract-blender-types.py extract Color Ramp nodes
 - Make sure we handle node groups
   - Read them from Blender
