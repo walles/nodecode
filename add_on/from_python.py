@@ -84,6 +84,15 @@ def parse_input_source(
 def parse_input_value(value: ast.AST) -> Optional[Any]:
     if isinstance(value, ast.Tuple):
         return tuple(parse_input_value(elt) for elt in value.elts)
+    if isinstance(value, ast.List):
+        return [parse_input_value(elt) for elt in value.elts]
+    if isinstance(value, ast.Dict):
+        return {
+            parse_input_value(k) if k is not None else None: parse_input_value(v)
+            if v is not None
+            else None
+            for k, v in zip(value.keys, value.values)
+        }
     if isinstance(value, ast.Constant):
         return value.value
 

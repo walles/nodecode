@@ -101,7 +101,47 @@ def apply_input_socket_to_blender_node(blender_node, input_socket) -> None:
                 f"Warning: Blender input '{blender_input.name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' does not have a 'default_value' attribute."
             )
             return
+
+        if input_socket.value is None:
+            print(
+                f"Warning: Skipping input '{input_socket.name}' on node '{getattr(blender_node, 'bl_idname', type(blender_node).__name__)}' because value is None."
+            )
+            return
+
         blender_input.default_value = input_socket.value
+        return
+
+    # Special handling for ColorRamp synthetic input
+    if input_socket.name == "ColorRamp":
+        if not hasattr(blender_node, "color_ramp"):
+            print(
+                f"Warning: Blender node {getattr(blender_node, 'bl_idname', type(blender_node).__name__)} does not have a color_ramp attribute."
+            )
+            return
+
+        ramp = blender_node.color_ramp
+        if not hasattr(ramp, "elements"):
+            print(
+                f"Warning: Blender node {getattr(blender_node, 'bl_idname', type(blender_node).__name__)}.color_ramp does not have elements."
+            )
+            return
+
+        # Remove all but one element (Blender requires at least one)
+        while len(ramp.elements) > 1:
+            ramp.elements.remove(ramp.elements[-1])
+
+        # Set the first element if any data exists
+        ramp_data = input_socket.value or []
+        if not ramp_data:
+            return
+
+        ramp.elements[0].position = ramp_data[0]["position"]
+        ramp.elements[0].color = ramp_data[0]["color"]
+
+        # Add remaining elements
+        for stop in ramp_data[1:]:
+            elem = ramp.elements.new(stop["position"])
+            elem.color = stop["color"]
         return
 
     # Fallback: try property on the node

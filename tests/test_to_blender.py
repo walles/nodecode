@@ -70,6 +70,56 @@ class TestApplyInputSocketToBlenderNode(unittest.TestCase):
         self.assertEqual(blender_input_1.default_value, "A")
         self.assertEqual(blender_input_2.default_value, "B")
 
+    def test_color_ramp_input_socket(self):
+        # Mock Blender color ramp element
+        class MockElement:
+            def __init__(self, position, color):
+                self.position = position
+                self.color = color
+
+        class MockElements(list):
+            def new(self, position):
+                elem = MockElement(position, (0.0, 0.0, 0.0, 1.0))
+                self.append(elem)
+                return elem
+
+            def remove(self, element):
+                super().remove(element)
+
+        class MockColorRamp:
+            def __init__(self):
+                self.elements = MockElements(
+                    [
+                        MockElement(0.0, (1.0, 0.0, 0.0, 1.0)),
+                        MockElement(1.0, (0.0, 0.0, 1.0, 1.0)),
+                    ]
+                )
+
+        class MockNode:
+            bl_idname = "ShaderNodeTest"
+            inputs = []
+            color_ramp = MockColorRamp()
+
+        mock_node = MockNode()
+        dummy_node = Node("Dummy", "DummyType")
+        ramp_data = [
+            {"position": 0.0, "color": (1.0, 0.0, 0.0, 1.0)},
+            {"position": 0.5, "color": (0.0, 1.0, 0.0, 1.0)},
+            {"position": 1.0, "color": (0.0, 0.0, 1.0, 1.0)},
+        ]
+        input_socket = InputSocket(
+            name="ColorRamp", node=dummy_node, value=ramp_data, source=None
+        )
+        apply_input_socket_to_blender_node(mock_node, input_socket)  # type: ignore
+        elements = mock_node.color_ramp.elements
+        self.assertEqual(len(elements), 3)
+        self.assertEqual(elements[0].position, 0.0)
+        self.assertEqual(elements[0].color, (1.0, 0.0, 0.0, 1.0))
+        self.assertEqual(elements[1].position, 0.5)
+        self.assertEqual(elements[1].color, (0.0, 1.0, 0.0, 1.0))
+        self.assertEqual(elements[2].position, 1.0)
+        self.assertEqual(elements[2].color, (0.0, 0.0, 1.0, 1.0))
+
 
 if __name__ == "__main__":
     unittest.main()
