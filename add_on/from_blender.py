@@ -14,12 +14,40 @@ def to_python_datatype(value: Optional[bpy.types.Property]) -> Any:
     if value is None:
         return None
 
-    if "bpy" not in str(type(value)):
-        # Already a Python type
-        return value
+    # Handle Blender Color type by attribute presence
+    if hasattr(value, "r") and hasattr(value, "g") and hasattr(value, "b"):
+        try:
+            return (float(value.r), float(value.g), float(value.b))
+        except Exception:
+            pass
 
-    if isinstance(value, bpy.types.bpy_prop_array):
-        return tuple([to_python_datatype(v) for v in value])
+    # Handle Blender Vector type by attribute presence
+    if hasattr(value, "x") and hasattr(value, "y"):
+        try:
+            # Try to get up to 4D vector (x, y, z, w)
+            components = [float(value.x), float(value.y)]
+            if hasattr(value, "z"):
+                components.append(float(value.z))
+            if hasattr(value, "w"):
+                components.append(float(value.w))
+            return tuple(components)
+        except Exception:
+            pass
+
+    # Convert any non-string, non-bytes iterable (e.g., Color, Vector, arrays) to tuple of floats
+    if (
+        hasattr(value, "__iter__")
+        and hasattr(value, "__len__")
+        and not isinstance(value, (str, bytes))
+    ):
+        try:
+            return tuple(float(v) for v in value)
+        except Exception:
+            pass
+
+    # Already a Python type (int, float, bool, str, bytes, etc.)
+    if isinstance(value, (int, float, bool, str, bytes)):
+        return value
 
     raise ValueError(
         f"Unsupported property type: {type(value)} for {value}. Please implement a conversion for this type."
@@ -34,6 +62,86 @@ def to_python_identifier(name: str) -> str:
     return name.replace(" ", "_").replace("-", "_").replace(".", "_").replace(",", "_")
 
 
+def extract_properties_as_input_sockets(
+    obj, node_obj, seen_names=None, seen_objs=None, prefix=None
+):
+    """
+    Recursively extracts properties from a Blender RNA object and adds them as input sockets to the node.
+    Properties from sub-objects are flattened into the node as ordinary inputs.
+    Ensures enum-like values are always converted to strings.
+    Also recurses into public attributes that are RNA sub-objects (e.g., color_ramp).
+    Prevents infinite recursion by tracking visited objects by id.
+    Prefixes input socket names with the sub-object name when recursing.
+    """
+    if seen_names is None:
+        seen_names = set()
+    if seen_objs is None:
+        seen_objs = set()
+
+    obj_id = id(obj)
+    if obj_id in seen_objs:
+        return
+    seen_objs.add(obj_id)
+
+    bl_rna = getattr(obj, "bl_rna", None)
+    if bl_rna is None:
+        return
+
+    for prop_id, prop in bl_rna.properties.items():
+        if should_ignore_property(prop_id, prop):
+            continue
+        base_name = to_python_identifier(prop_id)
+        input_name = f"{prefix}_{base_name}" if prefix else base_name
+        if input_name in seen_names:
+            continue
+        value = getattr(obj, prop_id, None)
+        if hasattr(prop, "enum_items") and value is not None:
+            py_value = str(value)
+        elif isinstance(value, (str, bytes)):
+            py_value = str(value)
+        elif value is None:
+            py_value = None
+        else:
+            py_value = to_python_datatype(value)
+        input_socket_obj = InputSocket(
+            name=input_name,
+            node=node_obj,
+            value=py_value,
+            source=None,
+        )
+        node_obj.add_input_socket(input_socket_obj)
+        seen_names.add(input_name)
+        if hasattr(value, "bl_rna") and not isinstance(value, (str, bytes)):
+            extract_properties_as_input_sockets(
+                value, node_obj, seen_names, seen_objs, prefix=input_name
+            )
+
+    for attr in dir(obj):
+        if attr.startswith("_"):
+            continue
+        if hasattr(bl_rna.properties, attr):
+            continue
+        try:
+            value = getattr(obj, attr)
+        except Exception:
+            continue
+        if hasattr(value, "bl_rna") and not isinstance(value, (str, bytes)):
+            extract_properties_as_input_sockets(
+                value,
+                node_obj,
+                seen_names,
+                seen_objs,
+                prefix=to_python_identifier(attr),
+            )
+
+    if hasattr(obj, "color_ramp"):
+        value = getattr(obj, "color_ramp")
+        if hasattr(value, "bl_rna") and not isinstance(value, (str, bytes)):
+            extract_properties_as_input_sockets(
+                value, node_obj, seen_names, seen_objs, prefix="color_ramp"
+            )
+
+
 def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     """
     Converts a Blender node to a NodeSystem Node (without links).
@@ -41,17 +149,7 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     node_type = blender_node.bl_idname.replace("ShaderNode", "")
     node_obj = Node(name=to_python_identifier(blender_node.name), node_type=node_type)
 
-    def add_property_input_sockets():
-        for prop_id, prop in blender_node.bl_rna.properties.items():
-            if should_ignore_property(prop_id, prop):
-                continue
-            input_socket_obj = InputSocket(
-                name=to_python_identifier(prop_id),
-                node=node_obj,
-                value=to_python_datatype(getattr(blender_node, prop_id, None)),
-                source=None,
-            )
-            node_obj.add_input_socket(input_socket_obj)
+    extract_properties_as_input_sockets(blender_node, node_obj)
 
     def add_node_input_sockets():
         for blender_input_socket in blender_node.inputs:
@@ -93,7 +191,6 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
             input_socket.name = f"{original_name}_{name_counts[original_name]}"
             name_counts[original_name] -= 1
 
-    add_property_input_sockets()
     add_node_input_sockets()
     add_output_sockets()
     deduplicate_input_socket_names(node_obj)
@@ -106,8 +203,15 @@ def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     if not hasattr(ramp, "elements"):
         return node_obj
 
+    def color_to_tuple(color):
+        # Convert Blender Color or similar to tuple of floats
+        try:
+            return tuple(float(c) for c in color)
+        except Exception:
+            return tuple()
+
     ramp_data = [
-        {"position": float(e.position), "color": tuple(float(c) for c in e.color)}
+        {"position": float(e.position), "color": color_to_tuple(e.color)}
         for e in ramp.elements
     ]
 

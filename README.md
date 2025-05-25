@@ -35,6 +35,7 @@ Run `tox` frequently to verify your changes.
 - Test roundtripping a node setup with a Color Ramp node
   - OK: Make export work
   - Make import work
+- Improve Python formatting of multiple Color Ramp stops
 - Test node layout with Principled vs Diffuse and check the layout seems to get
   the node heights about right
 - Regenerate the type stubs and check that the Mix Shader gets inputs named
