@@ -134,13 +134,6 @@ def extract_properties_as_input_sockets(
                 prefix=to_python_identifier(attr),
             )
 
-    if hasattr(obj, "color_ramp"):
-        value = getattr(obj, "color_ramp")
-        if hasattr(value, "bl_rna") and not isinstance(value, (str, bytes)):
-            extract_properties_as_input_sockets(
-                value, node_obj, seen_names, seen_objs, prefix="color_ramp"
-            )
-
 
 def create_node_from_blender_node(blender_node: bpy.types.Node) -> Node:
     """

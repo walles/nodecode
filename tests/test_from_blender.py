@@ -6,7 +6,6 @@ from add_on.from_blender import (
     convert_from_blender,
     create_node_from_blender_node,
     find_link_sockets,
-    extract_properties_as_input_sockets,
 )
 from add_on.node_system import Node, NodeSystem, InputSocket, OutputSocket
 
@@ -149,6 +148,41 @@ class TestCreateNodeFromBlenderNode(unittest.TestCase):
         self.assertEqual(len(node.output_sockets), 1)
         self.assertEqual(node.output_sockets[0].name, "Shader")
 
+    def test_color_ramp_input_socket(self):
+        # Mock Blender node with a color_ramp attribute
+        class MockElement:
+            def __init__(self, position, color):
+                self.position = position
+                self.color = color
+
+        class MockColorRamp:
+            def __init__(self):
+                self.elements = [
+                    MockElement(0.0, (1.0, 0.0, 0.0, 1.0)),
+                    MockElement(1.0, (0.0, 1.0, 0.0, 1.0)),
+                ]
+
+        mock_blender_node = SimpleNamespace(
+            name="ColorRamp Node",
+            bl_idname="ShaderNodeTest",
+            bl_rna=SimpleNamespace(properties=SimpleNamespace(items=lambda: [])),
+            inputs=[],
+            outputs=[],
+            color_ramp=MockColorRamp(),
+        )
+        mock_blender_node.bl_rna.properties.items = lambda: []
+
+        node = create_node_from_blender_node(mock_blender_node)  # type: ignore
+        color_ramp_inputs = []
+        for s in node.input_sockets:
+            if s.name == "ColorRamp":
+                color_ramp_inputs.append(s)
+        self.assertEqual(
+            len(color_ramp_inputs),
+            1,
+            "Node should have a 'ColorRamp' input socket if 'color_ramp' attribute is present.",
+        )
+
 
 class TestFindLinkSockets(unittest.TestCase):
     def test_find_link_sockets_happy_case(self):
@@ -237,52 +271,3 @@ class TestFindLinkSockets(unittest.TestCase):
         self.assertIs(output_socket_1, source_output_1)
         self.assertIs(input_socket_2, shader_2)
         self.assertIs(output_socket_2, source_output_2)
-
-
-class TestExtractPropertiesAsInputSockets(unittest.TestCase):
-    def test_extract_properties_as_input_sockets_color_ramp(self):
-        # This test directly verifies the recursive extraction of color_ramp in extract_properties_as_input_sockets
-        class DummyColor:
-            def __init__(self, r, g, b, a=1.0):
-                self.r = r
-                self.g = g
-                self.b = b
-                self.a = a
-
-            def __iter__(self):
-                return iter((self.r, self.g, self.b, self.a))
-
-        class DummyProperty:
-            is_hidden = False
-            is_readonly = False
-
-        class DummyColorRamp:
-            def __init__(self, elements=None):
-                self.bl_rna = type(
-                    "bl_rna", (), {"properties": {"foo": DummyProperty()}}
-                )()
-                self.foo = 42  # Just a dummy property
-
-        class DummyObj:
-            __slots__ = ("bl_rna", "color_ramp")
-
-            def __init__(self):
-                self.bl_rna = type("bl_rna", (), {"properties": {}})()
-                self.color_ramp = DummyColorRamp()
-
-            def __dir__(self):
-                # Hide 'color_ramp' from dir()
-                return ["bl_rna"]
-
-        node = Node(name="test", node_type="dummy")
-        extract_properties_as_input_sockets(DummyObj(), node)
-        # Should have recursed into color_ramp and added a socket with prefix 'color_ramp'
-        found = False
-        for s in node.input_sockets:
-            if s.name.startswith("color_ramp"):
-                found = True
-                break
-
-        self.assertTrue(
-            found, "Should extract color_ramp as input socket via recursion"
-        )
