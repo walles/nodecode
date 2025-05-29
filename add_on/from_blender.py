@@ -63,30 +63,41 @@ def to_python_identifier(name: str) -> str:
 
 
 def extract_properties_as_input_sockets(
-    obj, node_obj, seen_names=None, seen_objs=None, prefix=None
+    obj, node_obj, seen_names=None, seen_objs=None, prefix=None, depth=0, max_depth=20
 ):
     """
     Recursively extracts properties from a Blender RNA object and adds them as input sockets to the node.
     Properties from sub-objects are flattened into the node as ordinary inputs.
     Ensures enum-like values are always converted to strings.
     Also recurses into public attributes that are RNA sub-objects (e.g., color_ramp).
-    Prevents infinite recursion by tracking visited objects by id.
+    Prevents infinite recursion by tracking visited objects by id or as_pointer.
     Prefixes input socket names with the sub-object name when recursing.
     """
     if seen_names is None:
         seen_names = set()
     if seen_objs is None:
         seen_objs = set()
-
-    obj_id = id(obj)
-    if obj_id in seen_objs:
+    if depth > max_depth:
         return
-    seen_objs.add(obj_id)
+
+    # Use as_pointer() if available, else id(obj)
+    obj_key = None
+    if hasattr(obj, "as_pointer"):
+        try:
+            obj_key = (obj.as_pointer(), type(obj))
+        except Exception:
+            obj_key = (id(obj), type(obj))
+    else:
+        obj_key = (id(obj), type(obj))
+    if obj_key in seen_objs:
+        return
+    seen_objs.add(obj_key)
 
     bl_rna = getattr(obj, "bl_rna", None)
     if bl_rna is None:
         return
 
+    # Extract all properties
     for prop_id, prop in bl_rna.properties.items():
         if should_ignore_property(prop_id, prop):
             continue
@@ -111,9 +122,24 @@ def extract_properties_as_input_sockets(
         )
         node_obj.add_input_socket(input_socket_obj)
         seen_names.add(input_name)
+
+    # Now recurse into sub-objects
+    for prop_id, prop in bl_rna.properties.items():
+        value = getattr(obj, prop_id, None)
         if hasattr(value, "bl_rna") and not isinstance(value, (str, bytes)):
+            input_name = (
+                f"{prefix}_{to_python_identifier(prop_id)}"
+                if prefix
+                else to_python_identifier(prop_id)
+            )
             extract_properties_as_input_sockets(
-                value, node_obj, seen_names, seen_objs, prefix=input_name
+                value,
+                node_obj,
+                seen_names,
+                seen_objs,
+                prefix=input_name,
+                depth=depth + 1,
+                max_depth=max_depth,
             )
 
     for attr in dir(obj):
@@ -132,6 +158,8 @@ def extract_properties_as_input_sockets(
                 seen_names,
                 seen_objs,
                 prefix=to_python_identifier(attr),
+                depth=depth + 1,
+                max_depth=max_depth,
             )
 
 

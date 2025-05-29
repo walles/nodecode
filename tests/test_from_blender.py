@@ -183,6 +183,74 @@ class TestCreateNodeFromBlenderNode(unittest.TestCase):
             "Node should have a 'ColorRamp' input socket if 'color_ramp' attribute is present.",
         )
 
+    def test_cyclic_reference_fields_always_present(self):
+        # Simulate a cyclic reference: color_ramp is referenced in two places
+        class MockBlRna:
+            def __init__(self, properties):
+                self.properties = properties
+
+        class MockProperty:
+            def __init__(self, name, enum_items=False):
+                self.name = name
+                self.enum_items = enum_items
+                self.is_hidden = False
+                self.is_readonly = False
+
+        class MockColorRamp:
+            def __init__(self):
+                self.interpolation = "LINEAR"
+                self.hue_interpolation = "CW"
+                self.color_mode = "HSV"
+                self.bl_rna = MockBlRna(
+                    {
+                        "interpolation": MockProperty("interpolation", enum_items=True),
+                        "hue_interpolation": MockProperty(
+                            "hue_interpolation", enum_items=True
+                        ),
+                        "color_mode": MockProperty("color_mode", enum_items=True),
+                    }
+                )
+
+        class MockNode:
+            def __init__(self, color_ramp):
+                self.color_ramp = color_ramp
+                self.other_ref = color_ramp  # Second reference to same object
+                self.bl_rna = MockBlRna(
+                    {
+                        "color_ramp": MockProperty("color_ramp"),
+                        "other_ref": MockProperty("other_ref"),
+                    }
+                )
+
+        class DummyInputSocket:
+            def __init__(self, name, node, value, source):
+                self.name = name
+                self.node = node
+                self.value = value
+                self.source = source
+
+        class DummyNode:
+            def __init__(self):
+                self.input_sockets = []
+
+            def add_input_socket(self, sock):
+                self.input_sockets.append(sock)
+
+        from add_on.from_blender import (
+            extract_properties_as_input_sockets,
+            to_python_identifier,
+        )
+
+        color_ramp = MockColorRamp()
+        node = MockNode(color_ramp)
+        node_obj = DummyNode()
+        extract_properties_as_input_sockets(node, node_obj)
+        names = {s.name for s in node_obj.input_sockets}
+        # All fields should always be present, regardless of reference order
+        assert to_python_identifier("color_ramp_interpolation") in names
+        assert to_python_identifier("color_ramp_hue_interpolation") in names
+        assert to_python_identifier("color_ramp_color_mode") in names
+
 
 class TestFindLinkSockets(unittest.TestCase):
     def test_find_link_sockets_happy_case(self):

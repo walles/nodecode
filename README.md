@@ -35,6 +35,7 @@ Run `tox` frequently to verify your changes.
 - Test roundtripping a node setup with a Color Ramp node
   - OK: Make export work
   - Make import work
+- Verify roundtripping a setup with Noise -> Color Ramp -> Principled BSDF
 - Improve Python formatting of multiple Color Ramp stops
 - Test node layout with Principled vs Diffuse and check the layout seems to get
   the node heights about right
