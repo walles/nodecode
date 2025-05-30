@@ -222,13 +222,6 @@ class TestCreateNodeFromBlenderNode(unittest.TestCase):
                     }
                 )
 
-        class DummyInputSocket:
-            def __init__(self, name, node, value, source):
-                self.name = name
-                self.node = node
-                self.value = value
-                self.source = source
-
         class DummyNode:
             def __init__(self):
                 self.input_sockets = []
@@ -339,3 +332,36 @@ class TestFindLinkSockets(unittest.TestCase):
         self.assertIs(output_socket_1, source_output_1)
         self.assertIs(input_socket_2, shader_2)
         self.assertIs(output_socket_2, source_output_2)
+
+
+class TestExtractPropertiesAsInputSocketsGuard(unittest.TestCase):
+    def test_rna_type_guard_clause(self):
+        from add_on.from_blender import extract_properties_as_input_sockets
+
+        # Arrange some mock Blender properties
+        property = SimpleNamespace(
+            name="Test Property",
+            is_hidden=False,
+            is_readonly=False,
+            enum_items=lambda: [],
+        )
+        blender_node = SimpleNamespace(
+            bl_rna=SimpleNamespace(
+                properties=SimpleNamespace(items=lambda: [("Test Property", property)])
+            ),
+            name="Test Node",
+        )
+
+        node = Node(name="Test Node", node_type="TestType")
+        extract_properties_as_input_sockets(blender_node, node, None, None, None)
+        self.assertNotEqual(
+            node.input_sockets, [], "Input sockets should be created with prefix None."
+        )
+
+        node = Node(name="Test Node", node_type="TestType")
+        extract_properties_as_input_sockets(blender_node, node, None, None, "rna_type")
+        self.assertEqual(
+            node.input_sockets,
+            [],
+            "Input sockets should not be created with 'rna_type' prefix.",
+        )

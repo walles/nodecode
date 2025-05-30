@@ -73,6 +73,10 @@ def extract_properties_as_input_sockets(
     Prevents infinite recursion by tracking visited objects by id or as_pointer.
     Prefixes input socket names with the sub-object name when recursing.
     """
+
+    if prefix and prefix.endswith("rna_type"):
+        return
+
     if seen_names is None:
         seen_names = set()
     if seen_objs is None:
